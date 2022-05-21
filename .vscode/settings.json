@@ -1,0 +1,19 @@
+{
+    "cmake.exportCompileCommandsFile": true,
+
+    "clangd.arguments": [
+        "--compile-commands-dir=out/build/ninja-debug",
+        "-header-insertion=iwyu",
+    ],
+    "clangd.fallbackFlags": ["-xc++"], // To interpret .h files as C++.
+
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": true,
+    "files.insertFinalNewline": true,
+
+    "cmake.debugConfig": {
+        "externalConsole": true
+    },
+    "cmake.configureOnOpen": true,
+}

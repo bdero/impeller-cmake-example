@@ -1,0 +1,6 @@
+[submodule "third_party/impeller-cmake"]
+	path = third_party/impeller-cmake
+	url = git@github.com:bdero/impeller-cmake.git
+[submodule "third_party/glfw"]
+	path = third_party/glfw
+	url = git@github.com:glfw/glfw.git
