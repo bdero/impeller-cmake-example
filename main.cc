@@ -1,9 +1,12 @@
 #include <iostream>
 #include <memory>
 
+#include "backends/imgui_impl_glfw.h"
 #include "fml/mapping.h"
+#include "imgui.h"
 #include "impeller/geometry/size.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
+#include "impeller/playground/imgui/imgui_impl_impeller.h"
 #include "impeller/renderer/backend/gles/context_gles.h"
 #include "impeller/renderer/backend/gles/proc_table_gles.h"
 #include "impeller/renderer/backend/gles/surface_gles.h"
@@ -70,10 +73,26 @@ int main() {
   auto renderer = std::make_unique<impeller::Renderer>(context);
 
   //----------------------------------------------------------------------------
+  /// Setup ImGui.
+  ///
+
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  fml::ScopedCleanupClosure destroy_imgui_context(
+      []() { ImGui::DestroyContext(); });
+  ImGui::StyleColorsDark();
+  ImGui::GetIO().IniFilename = nullptr;
+
+  ::ImGui_ImplGlfw_InitForOther(window, true);
+  ::ImGui_ImplImpeller_Init(context);
+
+  //----------------------------------------------------------------------------
   /// Render.
   ///
 
   while (!::glfwWindowShouldClose(window)) {
+    ::ImGui_ImplGlfw_NewFrame();
+
     /// Get the next surface.
 
     impeller::SurfaceGLES::SwapCallback swap_callback = [window]() -> bool {
@@ -90,12 +109,47 @@ int main() {
 
     impeller::Renderer::RenderCallback render_callback =
         [&renderer](impeller::RenderTarget& render_target) -> bool {
+      ImGui::NewFrame();
+      static bool demo = true;
+      ImGui::ShowDemoWindow(&demo);
+      ImGui::Render();
+
+      // Render ImGui overlay.
+      {
+        auto buffer = renderer->GetContext()->CreateRenderCommandBuffer();
+        if (!buffer) {
+          return false;
+        }
+        buffer->SetLabel("ImGui Command Buffer");
+
+        if (render_target.GetColorAttachments().empty()) {
+          return false;
+        }
+        auto color0 = render_target.GetColorAttachments().find(0)->second;
+        color0.load_action = impeller::LoadAction::kLoad;
+        render_target.SetColorAttachment(color0, 0);
+        auto pass = buffer->CreateRenderPass(render_target);
+        if (!pass) {
+          return false;
+        }
+        pass->SetLabel("ImGui Render Pass");
+
+        ::ImGui_ImplImpeller_RenderDrawData(ImGui::GetDrawData(), *pass);
+
+        pass->EncodeCommands(renderer->GetContext()->GetTransientsAllocator());
+        if (!buffer->SubmitCommands()) {
+          return false;
+        }
+      }
       return true;
     };
     renderer->Render(std::move(surface), render_callback);
 
     ::glfwPollEvents();
   }
+
+  ::ImGui_ImplImpeller_Shutdown();
+  ::ImGui_ImplGlfw_Shutdown();
 
   ::glfwDestroyWindow(window);
   ::glfwTerminate();
