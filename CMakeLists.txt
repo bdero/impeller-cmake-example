@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.21)
 project(example)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 
 if(WIN32)
     add_compile_definitions(
@@ -29,5 +31,7 @@ option(GLFW_BUILD_DOCS "" OFF)
 option(GLFW_INSTALL "" OFF)
 add_subdirectory(third_party/glfw)
 
+include("imgui.cmake")
+
 add_executable(example "main.cc")
-target_link_libraries(example PRIVATE impeller_renderer glfw)
+target_link_libraries(example PRIVATE impeller_renderer glfw imgui)
