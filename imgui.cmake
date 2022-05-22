@@ -1,17 +1,10 @@
-impellerc(
-  OPENGL_ES
-  INPUT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/impeller-cmake/third_party/flutter/impeller/playground/imgui/imgui_raster.frag
-  SL ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.frag.glsl
-  SPIRV ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.frag.spirv
-  REFLECTION_HEADER ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.frag.h
-  REFLECTION_CC ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.frag.cc)
-impellerc(
-  OPENGL_ES
-  INPUT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/impeller-cmake/third_party/flutter/impeller/playground/imgui/imgui_raster.vert
-  SL ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.vert.glsl
-  SPIRV ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.vert.spirv
-  REFLECTION_HEADER ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.vert.h
-  REFLECTION_CC ${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.vert.cc)
+set(IMGUI_IMPELLER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/impeller-cmake/third_party/flutter/impeller/playground/imgui)
+add_gles_shader_library(
+    NAME imgui
+    SHADERS
+        ${IMGUI_IMPELLER_DIR}/imgui_raster.vert
+        ${IMGUI_IMPELLER_DIR}/imgui_raster.frag
+    OUTPUT_DIR ${GENERATED_DIR}/impeller/playground/imgui)
 
 set(IMGUI_SOURCE_FILES
     "third_party/imgui/imgui.cpp"
@@ -20,9 +13,10 @@ set(IMGUI_SOURCE_FILES
     "third_party/imgui/imgui_tables.cpp"
     "third_party/imgui/imgui_demo.cpp"
     "third_party/imgui/backends/imgui_impl_glfw.cpp"
-    "third_party/impeller-cmake/third_party/flutter/impeller/playground/imgui/imgui_impl_impeller.cc"
-    "${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.frag.cc"
-    "${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.vert.cc")
+    "${IMGUI_IMPELLER_DIR}/imgui_impl_impeller.cc"
+    "${GENERATED_DIR}/impeller/playground/imgui/gles/imgui_shaders_gles.cc"
+    "${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.vert.cc"
+    "${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.frag.cc")
 
 add_library(imgui STATIC ${IMGUI_SOURCE_FILES})
 
