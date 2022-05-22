@@ -1,7 +1,9 @@
 #include <iostream>
 #include <memory>
 
+#include "fml/mapping.h"
 #include "impeller/geometry/size.h"
+#include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
 #include "impeller/renderer/backend/gles/context_gles.h"
 #include "impeller/renderer/backend/gles/proc_table_gles.h"
 #include "impeller/renderer/backend/gles/surface_gles.h"
@@ -61,7 +63,10 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  auto context = impeller::ContextGLES::Create(std::move(gl), {});
+  auto context = impeller::ContextGLES::Create(
+      std::move(gl), {std::make_shared<fml::NonOwnedMapping>(
+                         impeller_imgui_shaders_gles_data,
+                         impeller_imgui_shaders_gles_length)});
   auto renderer = std::make_unique<impeller::Renderer>(context);
 
   //----------------------------------------------------------------------------
