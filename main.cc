@@ -1,14 +1,17 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 
 #include "backends/imgui_impl_glfw.h"
 #include "fml/mapping.h"
 #include "imgui.h"
+#include "impeller/base/thread.h"
 #include "impeller/geometry/size.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
 #include "impeller/playground/imgui/imgui_impl_impeller.h"
 #include "impeller/renderer/backend/gles/context_gles.h"
 #include "impeller/renderer/backend/gles/proc_table_gles.h"
+#include "impeller/renderer/backend/gles/reactor_gles.h"
 #include "impeller/renderer/backend/gles/surface_gles.h"
 #include "impeller/renderer/formats.h"
 #include "impeller/renderer/render_target.h"
@@ -16,6 +19,33 @@
 
 #define GLFW_INCLUDE_NONE
 #include "third_party/glfw/include/GLFW/glfw3.h"
+
+class ReactorWorker final : public impeller::ReactorGLES::Worker {
+ public:
+  ReactorWorker() = default;
+
+  // |ReactorGLES::Worker|
+  bool CanReactorReactOnCurrentThreadNow(
+      const impeller::ReactorGLES& reactor) const override {
+    impeller::ReaderLock lock(mutex_);
+    auto found = reactions_allowed_.find(std::this_thread::get_id());
+    if (found == reactions_allowed_.end()) {
+      return false;
+    }
+    return found->second;
+  }
+
+  void SetReactionsAllowedOnCurrentThread(bool allowed) {
+    impeller::WriterLock lock(mutex_);
+    reactions_allowed_[std::this_thread::get_id()] = allowed;
+  }
+
+ private:
+  mutable impeller::RWMutex mutex_;
+  std::map<std::thread::id, bool> reactions_allowed_ IPLR_GUARDED_BY(mutex_);
+
+  FML_DISALLOW_COPY_AND_ASSIGN(ReactorWorker);
+};
 
 int main() {
   //----------------------------------------------------------------------------
@@ -75,6 +105,19 @@ int main() {
       std::move(gl), {std::make_shared<fml::NonOwnedMapping>(
                          impeller_imgui_shaders_gles_data,
                          impeller_imgui_shaders_gles_length)});
+  if (!context) {
+    std::cerr << "Failed to create Impeller context.";
+    return EXIT_FAILURE;
+  }
+
+  auto worker = std::make_shared<ReactorWorker>();
+  worker->SetReactionsAllowedOnCurrentThread(true);
+  auto worker_id = context->AddReactorWorker(worker);
+  if (!worker_id.has_value()) {
+    std::cerr << "Failed to register GLES reactor worker.";
+    return EXIT_FAILURE;
+  }
+
   auto renderer = std::make_unique<impeller::Renderer>(context);
 
   //----------------------------------------------------------------------------
