@@ -32,9 +32,14 @@ int main() {
 
   ::glfwDefaultWindowHints();
 
+#ifdef __APPLE__
+  // ES Profiles are not supported on Mac.
+  ::glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+#else   // __APPLE__
   ::glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
   ::glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   ::glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#endif  // __APPLE__
 
   ::glfwWindowHint(GLFW_RED_BITS, 8);
   ::glfwWindowHint(GLFW_GREEN_BITS, 8);
