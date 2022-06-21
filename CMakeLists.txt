@@ -37,5 +37,16 @@ add_subdirectory(third_party/glfw)
 
 include("imgui.cmake")
 
-add_executable(example "main.cc")
+add_gles_shader_library(
+    NAME example
+    SHADERS
+        ${FLUTTER_ENGINE_DIR}/impeller/fixtures/impeller.vert
+        ${FLUTTER_ENGINE_DIR}/impeller/fixtures/impeller.frag
+    OUTPUT_DIR ${GENERATED_DIR}/shaders)
+
+add_executable(example
+    "main.cc"
+    "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
+    "${GENERATED_DIR}/shaders/impeller.vert.cc"
+    "${GENERATED_DIR}/shaders/impeller.frag.cc")
 target_link_libraries(example PRIVATE impeller_renderer glfw imgui)

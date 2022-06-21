@@ -6,6 +6,7 @@
 #include "fml/mapping.h"
 #include "imgui.h"
 #include "impeller/base/thread.h"
+#include "impeller/geometry/point.h"
 #include "impeller/geometry/size.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
 #include "impeller/playground/imgui/imgui_impl_impeller.h"
@@ -13,12 +14,19 @@
 #include "impeller/renderer/backend/gles/proc_table_gles.h"
 #include "impeller/renderer/backend/gles/reactor_gles.h"
 #include "impeller/renderer/backend/gles/surface_gles.h"
+#include "impeller/renderer/command.h"
 #include "impeller/renderer/formats.h"
+#include "impeller/renderer/pipeline_builder.h"
 #include "impeller/renderer/render_target.h"
 #include "impeller/renderer/renderer.h"
+#include "impeller/renderer/vertex_buffer_builder.h"
 
 #define GLFW_INCLUDE_NONE
 #include "third_party/glfw/include/GLFW/glfw3.h"
+
+#include "shaders/gles/example_shaders_gles.h"
+#include "shaders/impeller.frag.h"
+#include "shaders/impeller.vert.h"
 
 class ReactorWorker final : public impeller::ReactorGLES::Worker {
  public:
@@ -80,7 +88,7 @@ int main() {
   ::glfwWindowHint(GLFW_SAMPLES, 4);       // 4xMSAA
 
   auto window =
-      ::glfwCreateWindow(800, 600, "Impeller example", nullptr, nullptr);
+      ::glfwCreateWindow(1024, 768, "Impeller example", nullptr, nullptr);
   if (!window) {
     std::cerr << "Couldn't create GLFW window.";
     ::glfwTerminate();
@@ -103,8 +111,11 @@ int main() {
 
   auto context = impeller::ContextGLES::Create(
       std::move(gl), {std::make_shared<fml::NonOwnedMapping>(
-                         impeller_imgui_shaders_gles_data,
-                         impeller_imgui_shaders_gles_length)});
+                          impeller_imgui_shaders_gles_data,
+                          impeller_imgui_shaders_gles_length),
+                      std::make_shared<fml::NonOwnedMapping>(
+                          impeller_example_shaders_gles_data,
+                          impeller_example_shaders_gles_length)});
   if (!context) {
     std::cerr << "Failed to create Impeller context.";
     return EXIT_FAILURE;
@@ -135,6 +146,26 @@ int main() {
   ::ImGui_ImplImpeller_Init(context);
 
   //----------------------------------------------------------------------------
+  /// Setup showcase.
+  ///
+
+  using VS = impeller::ImpellerVertexShader;
+  using FS = impeller::ImpellerFragmentShader;
+
+  auto pipeline_desc =
+      impeller::PipelineBuilder<VS, FS>::MakeDefaultPipelineDescriptor(
+          *renderer->GetContext());
+  pipeline_desc->SetSampleCount(impeller::SampleCount::kCount4);
+  auto pipeline = renderer->GetContext()
+                      ->GetPipelineLibrary()
+                      ->GetRenderPipeline(pipeline_desc)
+                      .get();
+  if (!pipeline || !pipeline->IsValid()) {
+    std::cerr << "Failed to initialize pipeline for showcase.";
+    return EXIT_FAILURE;
+  }
+
+  //----------------------------------------------------------------------------
   /// Render.
   ///
 
@@ -156,20 +187,66 @@ int main() {
     /// Render to the surface.
 
     impeller::Renderer::RenderCallback render_callback =
-        [&renderer](impeller::RenderTarget& render_target) -> bool {
+        [&renderer, &pipeline](impeller::RenderTarget& render_target) -> bool {
       ImGui::NewFrame();
       static bool demo = true;
       ImGui::ShowDemoWindow(&demo);
       ImGui::Render();
 
-      // Render ImGui overlay.
+      auto buffer = renderer->GetContext()->CreateRenderCommandBuffer();
+      if (!buffer) {
+        return false;
+      }
+      buffer->SetLabel("Command Buffer");
+
+      // Render Impeller showcase.
       {
-        auto buffer = renderer->GetContext()->CreateRenderCommandBuffer();
-        if (!buffer) {
+        auto pass = buffer->CreateRenderPass(render_target);
+        if (!pass) {
           return false;
         }
-        buffer->SetLabel("ImGui Command Buffer");
 
+        impeller::Command cmd;
+        cmd.label = "Impeller SDF showcase";
+        cmd.pipeline = pipeline;
+
+        auto size = render_target.GetRenderTargetSize();
+
+        impeller::VertexBufferBuilder<VS::PerVertexData> builder;
+        builder.AddVertices({{impeller::Point()},
+                             {impeller::Point(0, size.height)},
+                             {impeller::Point(size.width, 0)},
+                             {impeller::Point(size.width, 0)},
+                             {impeller::Point(0, size.height)},
+                             {impeller::Point(size.width, size.height)}});
+        cmd.BindVertices(
+            builder.CreateVertexBuffer(pass->GetTransientsBuffer()));
+
+        VS::FrameInfo vs_uniform;
+        vs_uniform.mvp = impeller::Matrix::MakeOrthographic(size);
+        VS::BindFrameInfo(
+            cmd, pass->GetTransientsBuffer().EmplaceUniform((vs_uniform)));
+
+        FS::FragInfo fs_uniform;
+        fs_uniform.texture_size = impeller::Point(size);
+        fs_uniform.time = fml::TimePoint::Now().ToEpochDelta().ToSecondsF();
+        FS::BindFragInfo(
+            cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
+        // FS::BindBlueNoise(cmd, blue_noise, noise_sampler);
+        // FS::BindCubeMap(cmd, cube_map, cube_map_sampler);
+
+        if (!pass->AddCommand(cmd)) {
+          return false;
+        }
+
+        if (!pass->EncodeCommands(
+                renderer->GetContext()->GetTransientsAllocator())) {
+          return false;
+        }
+      }
+
+      // Render ImGui overlay.
+      {
         if (render_target.GetColorAttachments().empty()) {
           return false;
         }
@@ -184,12 +261,13 @@ int main() {
 
         ::ImGui_ImplImpeller_RenderDrawData(ImGui::GetDrawData(), *pass);
 
-        pass->EncodeCommands(renderer->GetContext()->GetTransientsAllocator());
-        if (!buffer->SubmitCommands()) {
+        if (!pass->EncodeCommands(
+                renderer->GetContext()->GetTransientsAllocator())) {
           return false;
         }
       }
-      return true;
+
+      return buffer->SubmitCommands();
     };
     renderer->Render(std::move(surface), render_callback);
 
