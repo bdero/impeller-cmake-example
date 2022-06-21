@@ -27,16 +27,23 @@ if(WIN32)
         $<$<CONFIG:Release>:/MT>)
 endif()
 
+# Dependency: impeller-cmake
 add_subdirectory(third_party/impeller-cmake)
 
+# Dependency: GLFW
 option(GLFW_BUILD_EXAMPLES "" OFF)
 option(GLFW_BUILD_TESTS "" OFF)
 option(GLFW_BUILD_DOCS "" OFF)
 option(GLFW_INSTALL "" OFF)
 add_subdirectory(third_party/glfw)
 
+# Dependency: STB
+add_library(stb STATIC "third_party/stb.cc")
+
+# Dependency: Dear ImGui
 include("imgui.cmake")
 
+# Shaders
 add_gles_shader_library(
     NAME example
     SHADERS
@@ -46,7 +53,8 @@ add_gles_shader_library(
 
 add_executable(example
     "src/main.cc"
+    "src/assets.cc"
     "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
     "${GENERATED_DIR}/shaders/impeller.vert.cc"
     "${GENERATED_DIR}/shaders/impeller.frag.cc")
-target_link_libraries(example PRIVATE impeller_renderer glfw imgui)
+target_link_libraries(example PRIVATE impeller_renderer glfw imgui stb)
