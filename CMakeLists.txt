@@ -45,7 +45,7 @@ add_gles_shader_library(
     OUTPUT_DIR ${GENERATED_DIR}/shaders)
 
 add_executable(example
-    "main.cc"
+    "src/main.cc"
     "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
     "${GENERATED_DIR}/shaders/impeller.vert.cc"
     "${GENERATED_DIR}/shaders/impeller.frag.cc")
