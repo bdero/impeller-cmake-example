@@ -13,7 +13,8 @@
     "files.insertFinalNewline": true,
 
     "cmake.debugConfig": {
-        "externalConsole": true
+        "externalConsole": true,
+        "cwd": "${workspaceFolder}",
     },
     "cmake.configureOnOpen": true,
 }

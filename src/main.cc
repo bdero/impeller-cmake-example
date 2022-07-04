@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 
@@ -19,11 +20,13 @@
 #include "impeller/renderer/pipeline_builder.h"
 #include "impeller/renderer/render_target.h"
 #include "impeller/renderer/renderer.h"
+#include "impeller/renderer/sampler_library.h"
 #include "impeller/renderer/vertex_buffer_builder.h"
 
 #define GLFW_INCLUDE_NONE
 #include "third_party/glfw/include/GLFW/glfw3.h"
 
+#include "assets.h"
 #include "shaders/gles/example_shaders_gles.h"
 #include "shaders/impeller.frag.h"
 #include "shaders/impeller.vert.h"
@@ -165,6 +168,27 @@ int main() {
     return EXIT_FAILURE;
   }
 
+  // Textures
+
+  const auto path =
+      (std::filesystem::current_path() /
+       "third_party/impeller-cmake/third_party/flutter/impeller/fixtures/"
+       "blue_noise.png")
+          .generic_string();
+
+  auto blue_noise_tex = example::LoadTexture(
+      path.c_str(), *renderer->GetContext()->GetPermanentsAllocator());
+  if (!blue_noise_tex) {
+    std::cerr << "Failed to load blue noise texture." << std::endl;
+    return EXIT_FAILURE;
+  }
+  impeller::SamplerDescriptor noise_sampler_desc;
+  noise_sampler_desc.width_address_mode = impeller::SamplerAddressMode::kRepeat;
+  noise_sampler_desc.height_address_mode =
+      impeller::SamplerAddressMode::kRepeat;
+  auto noise_sampler = renderer->GetContext()->GetSamplerLibrary()->GetSampler(
+      noise_sampler_desc);
+
   //----------------------------------------------------------------------------
   /// Render.
   ///
@@ -187,7 +211,8 @@ int main() {
     /// Render to the surface.
 
     impeller::Renderer::RenderCallback render_callback =
-        [&renderer, &pipeline](impeller::RenderTarget& render_target) -> bool {
+        [&renderer, &pipeline, &blue_noise_tex,
+         &noise_sampler](impeller::RenderTarget& render_target) -> bool {
       ImGui::NewFrame();
       static bool demo = true;
       ImGui::ShowDemoWindow(&demo);
@@ -232,7 +257,7 @@ int main() {
         fs_uniform.time = fml::TimePoint::Now().ToEpochDelta().ToSecondsF();
         FS::BindFragInfo(
             cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
-        // FS::BindBlueNoise(cmd, blue_noise, noise_sampler);
+        FS::BindBlueNoise(cmd, blue_noise_tex, noise_sampler);
         // FS::BindCubeMap(cmd, cube_map, cube_map_sampler);
 
         if (!pass->AddCommand(cmd)) {

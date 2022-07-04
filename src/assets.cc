@@ -29,7 +29,7 @@ std::shared_ptr<impeller::Texture> LoadTexture(
 
   impeller::TextureDescriptor texture_desc;
   texture_desc.type = impeller::TextureType::kTexture2D;
-  texture_desc.format = impeller::PixelFormat::kB8G8R8A8UNormInt;
+  texture_desc.format = impeller::PixelFormat::kR8G8B8A8UNormInt;
   texture_desc.size = {width, height};
   texture_desc.usage = usage;
 
