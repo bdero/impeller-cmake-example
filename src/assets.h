@@ -8,13 +8,13 @@
 namespace example {
 
 std::shared_ptr<impeller::Texture> LoadTexture(
-    const char* filename,
+    std::filesystem::path filename,
     impeller::Allocator& allocator,
     impeller::TextureUsageMask usage = static_cast<impeller::TextureUsageMask>(
         impeller::TextureUsage::kShaderRead));
 
 std::shared_ptr<impeller::Texture> LoadTextureCube(
-    std::array<const char*, 6> filenames,
+    std::array<std::filesystem::path, 6> filenames,
     impeller::Allocator& allocator,
     impeller::TextureUsageMask usage = static_cast<impeller::TextureUsageMask>(
         impeller::TextureUsage::kShaderRead));

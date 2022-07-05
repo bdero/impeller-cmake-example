@@ -170,14 +170,16 @@ int main() {
 
   // Textures
 
-  const auto path =
-      (std::filesystem::current_path() /
-       "third_party/impeller-cmake/third_party/flutter/impeller/fixtures/"
-       "blue_noise.png")
-          .generic_string();
+  const auto fixture_path =
+      std::filesystem::current_path() /
+      "third_party/impeller-cmake/third_party/flutter/impeller/fixtures/";
 
-  auto blue_noise_tex = example::LoadTexture(
-      path.c_str(), *renderer->GetContext()->GetPermanentsAllocator());
+  const auto blue_noise_path =
+      (fixture_path / "blue_noise.png").generic_string();
+
+  auto blue_noise_tex =
+      example::LoadTexture(blue_noise_path.c_str(),
+                           *renderer->GetContext()->GetPermanentsAllocator());
   if (!blue_noise_tex) {
     std::cerr << "Failed to load blue noise texture." << std::endl;
     return EXIT_FAILURE;
@@ -188,6 +190,17 @@ int main() {
       impeller::SamplerAddressMode::kRepeat;
   auto noise_sampler = renderer->GetContext()->GetSamplerLibrary()->GetSampler(
       noise_sampler_desc);
+
+  auto cube_map = example::LoadTextureCube(
+      {fixture_path / "table_mountain_px.png",
+       fixture_path / "table_mountain_nx.png",
+       fixture_path / "table_mountain_py.png",
+       fixture_path / "table_mountain_ny.png",
+       fixture_path / "table_mountain_pz.png",
+       fixture_path / "table_mountain_nz.png"},
+      *renderer->GetContext()->GetPermanentsAllocator());
+  auto cube_map_sampler =
+      renderer->GetContext()->GetSamplerLibrary()->GetSampler({});
 
   //----------------------------------------------------------------------------
   /// Render.
@@ -211,8 +224,8 @@ int main() {
     /// Render to the surface.
 
     impeller::Renderer::RenderCallback render_callback =
-        [&renderer, &pipeline, &blue_noise_tex,
-         &noise_sampler](impeller::RenderTarget& render_target) -> bool {
+        [&renderer, &pipeline, &blue_noise_tex, &noise_sampler, &cube_map,
+         &cube_map_sampler](impeller::RenderTarget& render_target) -> bool {
       ImGui::NewFrame();
       static bool demo = true;
       ImGui::ShowDemoWindow(&demo);
@@ -258,7 +271,7 @@ int main() {
         FS::BindFragInfo(
             cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
         FS::BindBlueNoise(cmd, blue_noise_tex, noise_sampler);
-        // FS::BindCubeMap(cmd, cube_map, cube_map_sampler);
+        FS::BindCubeMap(cmd, cube_map, cube_map_sampler);
 
         if (!pass->AddCommand(cmd)) {
           return false;
