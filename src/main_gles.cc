@@ -273,7 +273,7 @@ int main() {
         FS::BindBlueNoise(cmd, blue_noise_tex, noise_sampler);
         FS::BindCubeMap(cmd, cube_map, cube_map_sampler);
 
-        if (!pass->AddCommand(cmd)) {
+        if (!pass->AddCommand(std::move(cmd))) {
           return false;
         }
 
