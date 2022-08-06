@@ -8,7 +8,9 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
+set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(THIRD_PARTY_DIR ${PROJECT_DIR}/third_party)
+set(GENERATED_DIR ${PROJECT_DIR}/generated)
 
 if(WIN32)
     add_compile_definitions(
@@ -51,10 +53,11 @@ add_gles_shader_library(
         ${FLUTTER_ENGINE_DIR}/impeller/fixtures/impeller.frag
     OUTPUT_DIR ${GENERATED_DIR}/shaders)
 
+add_subdirectory(src/examples)
+
 add_executable(example
     "src/main_gles.cc"
-    "src/assets.cc"
     "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
     "${GENERATED_DIR}/shaders/impeller.vert.cc"
     "${GENERATED_DIR}/shaders/impeller.frag.cc")
-target_link_libraries(example PRIVATE impeller_renderer glfw imgui stb)
+target_link_libraries(example PRIVATE glfw imgui examples)

@@ -27,39 +27,11 @@
 #define GLFW_INCLUDE_NONE
 #include "third_party/glfw/include/GLFW/glfw3.h"
 
-#include "assets.h"
+#include "examples/assets.h"
+#include "examples/clock.h"
 #include "shaders/gles/example_shaders_gles.h"
 #include "shaders/impeller.frag.h"
 #include "shaders/impeller.vert.h"
-
-struct Clock {
-  std::chrono::nanoseconds start_time;
-  std::chrono::nanoseconds current_time;
-  std::chrono::nanoseconds delta_time;
-
-  Clock()
-      : start_time(GetCurrentNanoseconds()),
-        current_time(GetCurrentNanoseconds()) {}
-
-  void Tick() {
-    auto time = GetCurrentNanoseconds();
-    delta_time = time - current_time;
-    current_time = time;
-  }
-
-  float GetTime() const {
-    return static_cast<float>((current_time - start_time).count()) / 1000000000;
-  }
-
-  float GetDeltaTime() const {
-    return static_cast<float>(delta_time.count()) / 1000000000;
-  }
-
-  static std::chrono::nanoseconds GetCurrentNanoseconds() {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::system_clock::now().time_since_epoch());
-  }
-};
 
 class ReactorWorker final : public impeller::ReactorGLES::Worker {
  public:
@@ -236,7 +208,7 @@ int main() {
   /// Render.
   ///
 
-  Clock clock;
+  example::Clock clock;
 
   while (!::glfwWindowShouldClose(window)) {
     clock.Tick();
