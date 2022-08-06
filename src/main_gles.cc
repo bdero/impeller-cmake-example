@@ -151,7 +151,12 @@ int main() {
   std::vector<std::unique_ptr<example::TheImpellerExample>> examples;
   examples.push_back(std::make_unique<example::TheImpellerExample>());
 
+  std::vector<const char*> example_names;
+
   for (auto& example : examples) {
+    auto info = example->GetInfo();
+    example_names.push_back(info.name.c_str());
+
     if (!example->Setup(*renderer->GetContext())) {
       return EXIT_FAILURE;
     }
@@ -178,11 +183,37 @@ int main() {
 
     /// Render to the surface.
 
+    ImGui::SetNextWindowPos({10, 10});
+
     impeller::Renderer::RenderCallback render_callback =
-        [&renderer, &examples](impeller::RenderTarget& render_target) -> bool {
+        [&renderer, &examples,
+         &example_names](impeller::RenderTarget& render_target) -> bool {
+      static int selected_example_index = 0;
+      auto example = examples[selected_example_index].get();
+      auto example_info = example->GetInfo();
+
       ImGui::NewFrame();
-      static bool demo = true;
-      ImGui::ShowDemoWindow(&demo);
+      ImGui::Begin(example_info.name.c_str(), nullptr,
+                   ImGuiWindowFlags_AlwaysAutoResize);
+      {
+        if (ImGui::SmallButton("<")) {
+          selected_example_index -= 1;
+        }
+        ImGui::SameLine(200);
+        if (ImGui::SmallButton(">")) {
+          selected_example_index += 1;
+        }
+        while (selected_example_index < 0) {
+          selected_example_index += example_names.size();
+        }
+        while (selected_example_index >= example_names.size()) {
+          selected_example_index -= example_names.size();
+        }
+        ImGui::ListBox("##", &selected_example_index, example_names.data(),
+                       example_names.size());
+        ImGui::TextWrapped("%s", example_info.description.c_str());
+      }
+      ImGui::End();
       ImGui::Render();
 
       auto buffer = renderer->GetContext()->CreateRenderCommandBuffer();
@@ -192,7 +223,7 @@ int main() {
       buffer->SetLabel("Command Buffer");
 
       // Render Impeller showcase.
-      if (!examples[0]->Render(*renderer->GetContext(), render_target,
+      if (!example->Render(*renderer->GetContext(), render_target,
                                *buffer)) {
         return false;
       }
