@@ -29,9 +29,10 @@
 
 #include "examples/assets.h"
 #include "examples/clock.h"
-#include "shaders/gles/example_shaders_gles.h"
-#include "shaders/impeller.frag.h"
-#include "shaders/impeller.vert.h"
+
+#include "generated/shaders/gles/example_shaders_gles.h"
+#include "generated/shaders/impeller.frag.h"
+#include "generated/shaders/impeller.vert.h"
 
 class ReactorWorker final : public impeller::ReactorGLES::Worker {
  public:

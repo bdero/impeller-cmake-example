@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(SOURCE_DIR ${PROJECT_DIR}/src)
 set(THIRD_PARTY_DIR ${PROJECT_DIR}/third_party)
 set(GENERATED_DIR ${PROJECT_DIR}/generated)
 
@@ -56,8 +57,5 @@ add_gles_shader_library(
 add_subdirectory(src/examples)
 
 add_executable(example
-    "src/main_gles.cc"
-    "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
-    "${GENERATED_DIR}/shaders/impeller.vert.cc"
-    "${GENERATED_DIR}/shaders/impeller.frag.cc")
+    "src/main_gles.cc")
 target_link_libraries(example PRIVATE glfw imgui examples)
