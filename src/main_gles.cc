@@ -1,3 +1,4 @@
+#include <array>
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
@@ -7,28 +8,20 @@
 #include "backends/imgui_impl_glfw.h"
 #include "fml/mapping.h"
 #include "imgui.h"
-#include "impeller/base/thread.h"
-#include "impeller/geometry/point.h"
-#include "impeller/geometry/size.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
 #include "impeller/playground/imgui/imgui_impl_impeller.h"
 #include "impeller/renderer/backend/gles/context_gles.h"
-#include "impeller/renderer/backend/gles/proc_table_gles.h"
 #include "impeller/renderer/backend/gles/reactor_gles.h"
 #include "impeller/renderer/backend/gles/surface_gles.h"
-#include "impeller/renderer/command.h"
-#include "impeller/renderer/formats.h"
-#include "impeller/renderer/pipeline_builder.h"
-#include "impeller/renderer/render_target.h"
 #include "impeller/renderer/renderer.h"
-#include "impeller/renderer/sampler_library.h"
-#include "impeller/renderer/vertex_buffer_builder.h"
 
 #define GLFW_INCLUDE_NONE
 #include "third_party/glfw/include/GLFW/glfw3.h"
 
 #include "examples/assets.h"
 #include "examples/clock.h"
+#include "examples/example_base.h"
+#include "examples/the_impeller_example.h"
 
 #include "generated/shaders/gles/example_shaders_gles.h"
 #include "generated/shaders/impeller.frag.h"
@@ -152,68 +145,23 @@ int main() {
   ::ImGui_ImplImpeller_Init(context);
 
   //----------------------------------------------------------------------------
-  /// Setup showcase.
+  /// Setup examples.
   ///
 
-  using VS = impeller::ImpellerVertexShader;
-  using FS = impeller::ImpellerFragmentShader;
+  std::vector<std::unique_ptr<example::TheImpellerExample>> examples;
+  examples.push_back(std::make_unique<example::TheImpellerExample>());
 
-  auto pipeline_desc =
-      impeller::PipelineBuilder<VS, FS>::MakeDefaultPipelineDescriptor(
-          *renderer->GetContext());
-  pipeline_desc->SetSampleCount(impeller::SampleCount::kCount4);
-  auto pipeline = renderer->GetContext()
-                      ->GetPipelineLibrary()
-                      ->GetRenderPipeline(pipeline_desc)
-                      .get();
-  if (!pipeline || !pipeline->IsValid()) {
-    std::cerr << "Failed to initialize pipeline for showcase.";
-    return EXIT_FAILURE;
+  for (auto& example : examples) {
+    if (!example->Setup(*renderer->GetContext())) {
+      return EXIT_FAILURE;
+    }
   }
-
-  // Textures
-
-  const auto fixture_path =
-      std::filesystem::current_path() /
-      "third_party/impeller-cmake/third_party/flutter/impeller/fixtures/";
-
-  const auto blue_noise_path =
-      (fixture_path / "blue_noise.png").generic_string();
-
-  auto blue_noise_tex =
-      example::LoadTexture(blue_noise_path.c_str(),
-                           *renderer->GetContext()->GetPermanentsAllocator());
-  if (!blue_noise_tex) {
-    std::cerr << "Failed to load blue noise texture." << std::endl;
-    return EXIT_FAILURE;
-  }
-  impeller::SamplerDescriptor noise_sampler_desc;
-  noise_sampler_desc.width_address_mode = impeller::SamplerAddressMode::kRepeat;
-  noise_sampler_desc.height_address_mode =
-      impeller::SamplerAddressMode::kRepeat;
-  auto noise_sampler = renderer->GetContext()->GetSamplerLibrary()->GetSampler(
-      noise_sampler_desc);
-
-  auto cube_map = example::LoadTextureCube(
-      {fixture_path / "table_mountain_px.png",
-       fixture_path / "table_mountain_nx.png",
-       fixture_path / "table_mountain_py.png",
-       fixture_path / "table_mountain_ny.png",
-       fixture_path / "table_mountain_pz.png",
-       fixture_path / "table_mountain_nz.png"},
-      *renderer->GetContext()->GetPermanentsAllocator());
-  auto cube_map_sampler =
-      renderer->GetContext()->GetSamplerLibrary()->GetSampler({});
 
   //----------------------------------------------------------------------------
   /// Render.
   ///
 
-  example::Clock clock;
-
   while (!::glfwWindowShouldClose(window)) {
-    clock.Tick();
-
     ::ImGui_ImplGlfw_NewFrame();
 
     /// Get the next surface.
@@ -231,9 +179,7 @@ int main() {
     /// Render to the surface.
 
     impeller::Renderer::RenderCallback render_callback =
-        [&clock, &renderer, &pipeline, &blue_noise_tex, &noise_sampler,
-         &cube_map,
-         &cube_map_sampler](impeller::RenderTarget& render_target) -> bool {
+        [&renderer, &examples](impeller::RenderTarget& render_target) -> bool {
       ImGui::NewFrame();
       static bool demo = true;
       ImGui::ShowDemoWindow(&demo);
@@ -246,49 +192,9 @@ int main() {
       buffer->SetLabel("Command Buffer");
 
       // Render Impeller showcase.
-      {
-        auto pass = buffer->CreateRenderPass(render_target);
-        if (!pass) {
-          return false;
-        }
-
-        impeller::Command cmd;
-        cmd.label = "Impeller SDF showcase";
-        cmd.pipeline = pipeline;
-
-        auto size = render_target.GetRenderTargetSize();
-
-        impeller::VertexBufferBuilder<VS::PerVertexData> builder;
-        builder.AddVertices({{impeller::Point()},
-                             {impeller::Point(0, size.height)},
-                             {impeller::Point(size.width, 0)},
-                             {impeller::Point(size.width, 0)},
-                             {impeller::Point(0, size.height)},
-                             {impeller::Point(size.width, size.height)}});
-        cmd.BindVertices(
-            builder.CreateVertexBuffer(pass->GetTransientsBuffer()));
-
-        VS::FrameInfo vs_uniform;
-        vs_uniform.mvp = impeller::Matrix::MakeOrthographic(size);
-        VS::BindFrameInfo(
-            cmd, pass->GetTransientsBuffer().EmplaceUniform((vs_uniform)));
-
-        FS::FragInfo fs_uniform;
-        fs_uniform.texture_size = impeller::Point(size);
-        fs_uniform.time = clock.GetTime();
-        FS::BindFragInfo(
-            cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
-        FS::BindBlueNoise(cmd, blue_noise_tex, noise_sampler);
-        FS::BindCubeMap(cmd, cube_map, cube_map_sampler);
-
-        if (!pass->AddCommand(std::move(cmd))) {
-          return false;
-        }
-
-        if (!pass->EncodeCommands(
-                renderer->GetContext()->GetTransientsAllocator())) {
-          return false;
-        }
+      if (!examples[0]->Render(*renderer->GetContext(), render_target,
+                               *buffer)) {
+        return false;
       }
 
       // Render ImGui overlay.

@@ -9,7 +9,7 @@ add_library(examples STATIC
 )
 
 target_link_libraries(examples PRIVATE impeller_renderer stb)
-target_include_directories(examples PRIVATE
+target_include_directories(examples PUBLIC
     ${PROJECT_DIR}
     ${SOURCE_DIR}
     ${THIRD_PARTY_DIR}

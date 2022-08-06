@@ -33,9 +33,9 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
   const auto blue_noise_path =
       (fixture_path / "blue_noise.png").generic_string();
 
-  auto blue_noise_tex = example::LoadTexture(blue_noise_path.c_str(),
+  blue_noise_texture_ = example::LoadTexture(blue_noise_path.c_str(),
                                              *context.GetPermanentsAllocator());
-  if (!blue_noise_tex) {
+  if (!blue_noise_texture_) {
     std::cerr << "Failed to load blue noise texture." << std::endl;
     return false;
   }
@@ -43,10 +43,10 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
   noise_sampler_desc.width_address_mode = impeller::SamplerAddressMode::kRepeat;
   noise_sampler_desc.height_address_mode =
       impeller::SamplerAddressMode::kRepeat;
-  auto noise_sampler =
+  blue_noise_sampler_ =
       context.GetSamplerLibrary()->GetSampler(noise_sampler_desc);
 
-  auto cube_map =
+  cube_map_texture_ =
       example::LoadTextureCube({fixture_path / "table_mountain_px.png",
                                 fixture_path / "table_mountain_nx.png",
                                 fixture_path / "table_mountain_py.png",
@@ -54,14 +54,14 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
                                 fixture_path / "table_mountain_pz.png",
                                 fixture_path / "table_mountain_nz.png"},
                                *context.GetPermanentsAllocator());
-  auto cube_map_sampler = context.GetSamplerLibrary()->GetSampler({});
+  cube_map_sampler_ = context.GetSamplerLibrary()->GetSampler({});
 
   auto pipeline_desc =
       impeller::PipelineBuilder<VS, FS>::MakeDefaultPipelineDescriptor(context);
   pipeline_desc->SetSampleCount(impeller::SampleCount::kCount4);
-  auto pipeline =
+  pipeline_ =
       context.GetPipelineLibrary()->GetRenderPipeline(pipeline_desc).get();
-  if (!pipeline || !pipeline->IsValid()) {
+  if (!pipeline_ || !pipeline_->IsValid()) {
     std::cerr << "Failed to initialize pipeline for showcase.";
     return false;
   }
