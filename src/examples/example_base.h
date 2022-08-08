@@ -10,8 +10,8 @@ namespace example {
 class ExampleBase {
  public:
   struct Info {
-    std::string name;
-    std::string description;
+    const char* name;
+    const char* description;
   };
 
   virtual ~ExampleBase();

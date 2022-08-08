@@ -155,7 +155,7 @@ int main() {
 
   for (auto& example : examples) {
     auto info = example->GetInfo();
-    example_names.push_back(info.name.c_str());
+    example_names.push_back(info.name);
 
     if (!example->Setup(*renderer->GetContext())) {
       return EXIT_FAILURE;
@@ -193,7 +193,7 @@ int main() {
       auto example_info = example->GetInfo();
 
       ImGui::NewFrame();
-      ImGui::Begin(example_info.name.c_str(), nullptr,
+      ImGui::Begin(example_info.name, nullptr,
                    ImGuiWindowFlags_AlwaysAutoResize);
       {
         if (ImGui::SmallButton("<")) {
@@ -211,7 +211,7 @@ int main() {
         }
         ImGui::ListBox("##", &selected_example_index, example_names.data(),
                        example_names.size());
-        ImGui::TextWrapped("%s", example_info.description.c_str());
+        ImGui::TextWrapped("%s", example_info.description);
       }
       ImGui::End();
       ImGui::Render();
@@ -223,8 +223,7 @@ int main() {
       buffer->SetLabel("Command Buffer");
 
       // Render Impeller showcase.
-      if (!example->Render(*renderer->GetContext(), render_target,
-                               *buffer)) {
+      if (!example->Render(*renderer->GetContext(), render_target, *buffer)) {
         return false;
       }
 
