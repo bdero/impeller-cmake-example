@@ -27,6 +27,11 @@ int main(int argc, char* argv[]) {
 
   Assimp::Importer importer;
 
+  // This setting combined with the aiProcess_Triangulate postprocess ensures
+  // all faces contain exactly 3 indices.
+  importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE,
+                              aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+
   unsigned int postprocess_flags =
       aiProcess_CalcTangentSpace | aiProcess_Triangulate |
       aiProcess_JoinIdenticalVertices | aiProcess_SortByPType;
@@ -37,12 +42,76 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  example::fb::MeshT mesh;
+  if (!scene->HasMeshes()) {
+    std::cerr << "Can't import scene because it doesn't contain any meshes."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
 
+  auto ai_mesh = scene->mMeshes[0];
+
+  if (!ai_mesh->HasPositions()) {
+    std::cerr << "Can't import scene because the mesh doens't contain any "
+                 "vertex positions."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (!ai_mesh->HasFaces()) {
+    std::cerr
+        << "Can't import scene because the mesh doens't contain any faces."
+        << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (!ai_mesh->HasNormals()) {
+    std::cerr << "Warning: Mesh has no normals! Filling with zeroes."
+              << std::endl;
+  }
+
+  if (!ai_mesh->HasVertexColors(0)) {
+    std::cerr << "Warning: Mesh has no vertex colors! Filling with white."
+              << std::endl;
+  }
 
   //----------------------------------------------------------------------------
   /// Build a flatbuffer with the model data.
   ///
+
+  example::fb::MeshT mesh;
+
+  for (int vertex_i = 0; vertex_i < ai_mesh->mNumVertices; vertex_i++) {
+    aiVector3D position = ai_mesh->mVertices[vertex_i];
+
+    aiVector3D normal;
+    if (ai_mesh->HasNormals()) {
+      normal = ai_mesh->mNormals[vertex_i];
+    }
+
+    aiColor4D color(1, 1, 1, 1);
+    if (ai_mesh->HasVertexColors(0)) {
+      color = ai_mesh->mColors[0][vertex_i];
+    }
+
+    example::fb::Vertex vtx({position.x, position.y, position.z},
+                            {normal.x, normal.y, normal.z},
+                            {color.r, color.g, color.b});
+    mesh.vertices.push_back(std::move(vtx));
+  }
+
+  for (int face_i = 0; face_i < ai_mesh->mNumFaces; face_i++) {
+    auto face = ai_mesh->mFaces[face_i];
+    if (face.mNumIndices != 3) {
+      std::cerr << "Unable to parse face " << face_i
+                << " of mesh 0 because it contains " << face.mNumIndices
+                << " indices." << std::endl;
+      continue;
+    }
+
+    for (int index_i = 0; index_i < face.mNumIndices; index_i++) {
+      mesh.indices.push_back(face.mIndices[index_i]);
+    }
+  }
 
   flatbuffers::FlatBufferBuilder builder;
   builder.Finish(example::fb::Mesh::Pack(builder, &mesh));

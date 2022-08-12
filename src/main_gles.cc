@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "backends/imgui_impl_glfw.h"
+#include "examples/mesh_example.h"
 #include "fml/mapping.h"
 #include "imgui.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
@@ -148,8 +149,9 @@ int main() {
   /// Setup examples.
   ///
 
-  std::vector<std::unique_ptr<example::TheImpellerExample>> examples;
+  std::vector<std::unique_ptr<example::ExampleBase>> examples;
   examples.push_back(std::make_unique<example::TheImpellerExample>());
+  examples.push_back(std::make_unique<example::MeshExample>());
 
   std::vector<const char*> example_names;
 

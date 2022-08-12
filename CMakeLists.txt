@@ -14,6 +14,7 @@ set(THIRD_PARTY_DIR ${PROJECT_DIR}/third_party)
 set(GENERATED_DIR ${PROJECT_DIR}/generated)
 set(ASSETS_SOURCE_DIR ${PROJECT_DIR}/assets_src)
 set(ASSETS_OUT_DIR ${PROJECT_DIR}/assets)
+set(FLATBUFFERS_INCLUDE_DIR ${THIRD_PARTY_DIR}/impeller-cmake/third_party/flatbuffers/include)
 
 if(WIN32)
     add_compile_definitions(
@@ -54,11 +55,15 @@ add_gles_shader_library(
     SHADERS
         ${FLUTTER_ENGINE_DIR}/impeller/fixtures/impeller.vert
         ${FLUTTER_ENGINE_DIR}/impeller/fixtures/impeller.frag
+        ${SOURCE_DIR}/examples/mesh_example.vert
+        ${SOURCE_DIR}/examples/mesh_example.frag
     OUTPUT_DIR ${GENERATED_DIR}/shaders)
 add_library(example_shader_lib STATIC
     "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
     "${GENERATED_DIR}/shaders/impeller.vert.cc"
-    "${GENERATED_DIR}/shaders/impeller.frag.cc")
+    "${GENERATED_DIR}/shaders/impeller.frag.cc"
+    "${GENERATED_DIR}/shaders/mesh_example.vert.cc"
+    "${GENERATED_DIR}/shaders/mesh_example.frag.cc")
 target_link_libraries(example_shader_lib PUBLIC impeller_renderer)
 
 # Examples binary

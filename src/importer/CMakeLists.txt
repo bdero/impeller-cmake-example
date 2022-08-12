@@ -12,7 +12,7 @@ target_include_directories(importer PRIVATE ${THIRD_PARTY_DIR}/assimp/include)
 target_include_directories(importer PUBLIC
     ${PROJECT_DIR}
     ${SOURCE_DIR}
-    ${THIRD_PARTY_DIR}/impeller-cmake/third_party/flatbuffers/include)
+    ${FLATBUFFERS_INCLUDE_DIR})
 
 # import_model(
 #    TARGET dependent
