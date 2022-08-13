@@ -11,10 +11,13 @@
 #include "imgui.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
 #include "impeller/playground/imgui/imgui_impl_impeller.h"
+#include "impeller/renderer/allocator.h"
 #include "impeller/renderer/backend/gles/context_gles.h"
 #include "impeller/renderer/backend/gles/reactor_gles.h"
 #include "impeller/renderer/backend/gles/surface_gles.h"
+#include "impeller/renderer/formats.h"
 #include "impeller/renderer/renderer.h"
+#include "impeller/renderer/texture_descriptor.h"
 
 #define GLFW_INCLUDE_NONE
 #include "third_party/glfw/include/GLFW/glfw3.h"
@@ -83,7 +86,7 @@ int main() {
   ::glfwWindowHint(GLFW_GREEN_BITS, 8);
   ::glfwWindowHint(GLFW_BLUE_BITS, 8);
   ::glfwWindowHint(GLFW_ALPHA_BITS, 8);
-  ::glfwWindowHint(GLFW_DEPTH_BITS, 0);    // no depth buffer
+  ::glfwWindowHint(GLFW_DEPTH_BITS, 24);
   ::glfwWindowHint(GLFW_STENCIL_BITS, 8);  // 8 bit stencil buffer
   ::glfwWindowHint(GLFW_SAMPLES, 4);       // 4xMSAA
 
@@ -224,7 +227,29 @@ int main() {
       }
       buffer->SetLabel("Command Buffer");
 
-      // Render Impeller showcase.
+      /// Setup depth attachment.
+
+      {
+        impeller::TextureDescriptor depth_texture_desc;
+        depth_texture_desc.type = impeller::TextureType::kTexture2D;
+        depth_texture_desc.format = impeller::PixelFormat::kDefaultColor;
+        depth_texture_desc.size = render_target.GetRenderTargetSize();
+        depth_texture_desc.usage = static_cast<impeller::TextureUsageMask>(
+            impeller::TextureUsage::kRenderTarget);
+        depth_texture_desc.sample_count = impeller::SampleCount::kCount1;
+
+        impeller::DepthAttachment depth;
+        depth.load_action = impeller::LoadAction::kClear;
+        depth.store_action = impeller::StoreAction::kDontCare;
+        depth.clear_depth = 1.0;
+        depth.texture =
+            renderer->GetContext()->GetTransientsAllocator()->CreateTexture(
+                impeller::StorageMode::kDeviceTransient, depth_texture_desc);
+
+        render_target.SetDepthAttachment(depth);
+      }
+
+      // Render the selected example.
       if (!example->Render(*renderer->GetContext(), render_target, *buffer)) {
         return false;
       }

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iterator>
 
+#include "impeller/geometry/matrix.h"
 #include "impeller/geometry/scalar.h"
 #include "impeller/renderer/allocator.h"
 #include "impeller/renderer/buffer_view.h"
@@ -107,6 +108,10 @@ bool MeshExample::Setup(impeller::Context& context) {
   pipeline_desc->SetSampleCount(impeller::SampleCount::kCount4);
   pipeline_desc->SetWindingOrder(impeller::WindingOrder::kCounterClockwise);
   pipeline_desc->SetCullMode(impeller::CullMode::kBackFace);
+  pipeline_desc->SetDepthStencilAttachmentDescriptor({
+      .depth_compare = impeller::CompareFunction::kLess,
+      .depth_write_enabled = true,
+  });
   pipeline_ =
       context.GetPipelineLibrary()->GetRenderPipeline(pipeline_desc).get();
   if (!pipeline_ || !pipeline_->IsValid()) {
@@ -134,16 +139,18 @@ bool MeshExample::Render(impeller::Context& context,
   cmd.BindVertices(vertex_buffer_);
 
   auto time = clock_.GetTime();
-  impeller::Vector3 euler_angles(0.19 * time, 0.7 * time, 0.43 * time);
 
   VS::VertInfo vs_uniform;
   vs_uniform.mvp =
       impeller::Matrix::MakePerspective(impeller::Degrees{60},
-                                        pass->GetRenderTargetSize(), 0, 1000) *
+                                        pass->GetRenderTargetSize(), 10, 100) *
       impeller::Matrix::MakeTranslation({0, 0, -50}) *
-      impeller::Matrix::MakeRotationX(impeller::Radians(euler_angles.x)) *
-      impeller::Matrix::MakeRotationY(impeller::Radians(euler_angles.y)) *
-      impeller::Matrix::MakeRotationZ(impeller::Radians(euler_angles.z));
+      impeller::Matrix::MakeScale({0.3, 0.3, 0.3}) *
+      impeller::Matrix::MakeRotationY(impeller::Radians{-0.4f * time}) *
+      impeller::Matrix::MakeRotationZ(
+          impeller::Radians{std::sin(time * 0.43f) / 5}) *
+      impeller::Matrix::MakeRotationX(
+          impeller::Radians{std::cos(time * 0.27f) / 4});
   VS::BindVertInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(vs_uniform));
 
   if (!pass->AddCommand(std::move(cmd))) {
