@@ -31,7 +31,7 @@ ExampleBase::Info MeshExample::GetInfo() {
       .name = "Mesh Example",
       .description =
           "A simple FBX with vertex colors and normals imported ahead of "
-          "time. The importer tool is located under `src/examples/importer`.",
+          "time. The importer tool is located under `src/importer`.",
   };
 }
 

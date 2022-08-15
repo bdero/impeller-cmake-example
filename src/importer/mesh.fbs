@@ -22,7 +22,7 @@ struct Color {
 struct Vertex {
   position: Vec3;
   normal: Vec3;
-  color: Color;
+  texture_coords: Vec2;
 }
 
 table Mesh {

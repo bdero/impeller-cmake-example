@@ -5,13 +5,13 @@ vert_info;
 
 in vec3 position;
 in vec3 normal;
-in vec3 color;
+in vec2 texture_coords;
 
 out vec3 v_normal;
-out vec3 v_color;
+out vec2 v_texture_coords;
 
 void main() {
   gl_Position = vert_info.mvp * vec4(position, 1.0);
   v_normal = normal;
-  v_color = color;
+  v_texture_coords = texture_coords;
 }

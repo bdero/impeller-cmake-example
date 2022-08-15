@@ -69,8 +69,8 @@ int main(int argc, char* argv[]) {
               << std::endl;
   }
 
-  if (!ai_mesh->HasVertexColors(0)) {
-    std::cerr << "Warning: Mesh has no vertex colors! Filling with white."
+  if (!ai_mesh->HasTextureCoords(0)) {
+    std::cerr << "Warning: Mesh has no texture coorinates! Filling with zeroes."
               << std::endl;
   }
 
@@ -88,14 +88,16 @@ int main(int argc, char* argv[]) {
       normal = ai_mesh->mNormals[vertex_i];
     }
 
-    aiColor4D color(1, 1, 1, 1);
-    if (ai_mesh->HasVertexColors(0)) {
-      color = ai_mesh->mColors[0][vertex_i];
+    aiVector3D texture_coords(0, 0, 0);
+    if (ai_mesh->HasTextureCoords(0)) {
+      texture_coords = ai_mesh->mTextureCoords[0][vertex_i];
     }
+    std::cout << "Texture coord: " << texture_coords.x << " "
+              << texture_coords.y << std::endl;
 
     example::fb::Vertex vtx({position.x, position.y, position.z},
                             {normal.x, normal.y, normal.z},
-                            {color.r, color.g, color.b});
+                            {texture_coords.x, texture_coords.y});
     mesh.vertices.push_back(std::move(vtx));
   }
 
