@@ -84,17 +84,21 @@ int main(int argc, char* argv[]) {
     aiVector3D position = ai_mesh->mVertices[vertex_i];
 
     aiVector3D normal;
+    aiVector3D tangent;
     if (ai_mesh->HasNormals()) {
       normal = ai_mesh->mNormals[vertex_i];
+      tangent = ai_mesh->mTangents[vertex_i];
     }
 
-    aiVector3D texture_coords(0, 0, 0);
+    aiVector3D texture_coords;
     if (ai_mesh->HasTextureCoords(0)) {
       texture_coords = ai_mesh->mTextureCoords[0][vertex_i];
+      texture_coords.y = 1 - texture_coords.y;
     }
 
     example::fb::Vertex vtx({position.x, position.y, position.z},
                             {normal.x, normal.y, normal.z},
+                            {tangent.x, tangent.y, tangent.z},
                             {texture_coords.x, texture_coords.y});
     mesh.vertices.push_back(std::move(vtx));
   }

@@ -193,7 +193,7 @@ int main() {
     impeller::Renderer::RenderCallback render_callback =
         [&renderer, &examples,
          &example_names](impeller::RenderTarget& render_target) -> bool {
-      static int selected_example_index = 0;
+      static int selected_example_index = 1;
       auto example = examples[selected_example_index].get();
       auto example_info = example->GetInfo();
 

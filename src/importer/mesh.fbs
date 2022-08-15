@@ -22,6 +22,7 @@ struct Color {
 struct Vertex {
   position: Vec3;
   normal: Vec3;
+  tangent: Vec3;
   texture_coords: Vec2;
 }
 
