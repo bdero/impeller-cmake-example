@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "impeller/renderer/pipeline.h"
+#include "impeller/renderer/sampler.h"
 #include "impeller/renderer/vertex_buffer.h"
 
 #include "examples/clock.h"
@@ -30,6 +31,8 @@ class MeshExample final : public ExampleBase {
 
   std::shared_ptr<impeller::Pipeline> pipeline_;
   impeller::VertexBuffer vertex_buffer_;
+
+  std::shared_ptr<const impeller::Sampler> sampler_;
 
   std::shared_ptr<impeller::Texture> base_color_texture_;
   std::shared_ptr<impeller::Texture> normal_texture_;

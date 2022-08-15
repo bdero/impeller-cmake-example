@@ -15,14 +15,15 @@
 #include "impeller/renderer/pipeline_library.h"
 #include "impeller/renderer/render_pass.h"
 #include "impeller/renderer/render_target.h"
+#include "impeller/renderer/sampler_library.h"
+#include "impeller/renderer/vertex_buffer.h"
+#include "impeller/tessellator/tessellator.h"
 
 #include "examples/assets.h"
 
 #include "generated/importer/mesh_flatbuffers.h"
 #include "generated/shaders/mesh_example.frag.h"
 #include "generated/shaders/mesh_example.vert.h"
-#include "impeller/renderer/vertex_buffer.h"
-#include "impeller/tessellator/tessellator.h"
 
 namespace example {
 
@@ -60,8 +61,13 @@ bool MeshExample::Setup(impeller::Context& context) {
   fb::GetMesh(data.data())->UnPackTo(&mesh);
 
   //----------------------------------------------------------------------------
-  /// Load textures.
+  /// Create sampler and load textures.
   ///
+
+  impeller::SamplerDescriptor sampler_desc;
+  sampler_desc.min_filter = impeller::MinMagFilter::kLinear;
+  sampler_desc.mag_filter = impeller::MinMagFilter::kLinear;
+  sampler_ = context.GetSamplerLibrary()->GetSampler(sampler_desc);
 
   const auto asset_path = std::filesystem::current_path() / "assets/";
 
@@ -179,6 +185,10 @@ bool MeshExample::Render(impeller::Context& context,
       impeller::Matrix::MakeRotationX(
           impeller::Radians{std::cos(time * 0.27f) / 4});
   VS::BindVertInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(vs_uniform));
+  FS::BindBaseColorTexture(cmd, base_color_texture_, sampler_);
+  FS::BindNormalTexture(cmd, normal_texture_, sampler_);
+  FS::BindOcclusionRoughnessMetallicTexture(
+      cmd, occlusion_roughness_metallic_texture_, sampler_);
 
   if (!pass->AddCommand(std::move(cmd))) {
     return false;
