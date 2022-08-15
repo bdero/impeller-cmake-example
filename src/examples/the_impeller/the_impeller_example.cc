@@ -34,7 +34,7 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
       (fixture_path / "blue_noise.png").generic_string();
 
   blue_noise_texture_ = example::LoadTexture(blue_noise_path.c_str(),
-                                             *context.GetPermanentsAllocator());
+                                             *context.GetResourceAllocator());
   if (!blue_noise_texture_) {
     std::cerr << "Failed to load blue noise texture." << std::endl;
     return false;
@@ -53,7 +53,7 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
                                 fixture_path / "table_mountain_ny.png",
                                 fixture_path / "table_mountain_pz.png",
                                 fixture_path / "table_mountain_nz.png"},
-                               *context.GetPermanentsAllocator());
+                               *context.GetResourceAllocator());
   cube_map_sampler_ = context.GetSamplerLibrary()->GetSampler({});
 
   auto pipeline_desc =
@@ -110,7 +110,7 @@ bool TheImpellerExample::Render(impeller::Context& context,
     return false;
   }
 
-  if (!pass->EncodeCommands(context.GetTransientsAllocator())) {
+  if (!pass->EncodeCommands()) {
     return false;
   }
 

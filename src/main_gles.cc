@@ -221,7 +221,7 @@ int main() {
       ImGui::End();
       ImGui::Render();
 
-      auto buffer = renderer->GetContext()->CreateRenderCommandBuffer();
+      auto buffer = renderer->GetContext()->CreateCommandBuffer();
       if (!buffer) {
         return false;
       }
@@ -243,7 +243,7 @@ int main() {
         depth.store_action = impeller::StoreAction::kDontCare;
         depth.clear_depth = 1.0;
         depth.texture =
-            renderer->GetContext()->GetTransientsAllocator()->CreateTexture(
+            renderer->GetContext()->GetResourceAllocator()->CreateTexture(
                 impeller::StorageMode::kDeviceTransient, depth_texture_desc);
 
         render_target.SetDepthAttachment(depth);
@@ -270,8 +270,7 @@ int main() {
 
         ::ImGui_ImplImpeller_RenderDrawData(ImGui::GetDrawData(), *pass);
 
-        if (!pass->EncodeCommands(
-                renderer->GetContext()->GetTransientsAllocator())) {
+        if (!pass->EncodeCommands()) {
           return false;
         }
       }

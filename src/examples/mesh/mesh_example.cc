@@ -73,20 +73,20 @@ bool MeshExample::Setup(impeller::Context& context) {
 
   base_color_texture_ =
       example::LoadTexture(asset_path / "flutter_logo_BaseColor.png",
-                           *context.GetPermanentsAllocator());
+                           *context.GetResourceAllocator());
   if (!base_color_texture_) {
     std::cerr << "Failed to load base color texture." << std::endl;
   }
 
   normal_texture_ = example::LoadTexture(asset_path / "flutter_logo_Normal.png",
-                                         *context.GetPermanentsAllocator());
+                                         *context.GetResourceAllocator());
   if (!normal_texture_) {
     std::cerr << "Failed to load normal texture." << std::endl;
   }
 
   occlusion_roughness_metallic_texture_ = example::LoadTexture(
       asset_path / "flutter_logo_OcclusionRoughnessMetallic.png",
-      *context.GetPermanentsAllocator());
+      *context.GetResourceAllocator());
   if (!occlusion_roughness_metallic_texture_) {
     std::cerr << "Failed to load occlusion/roughness/metallic texture."
               << std::endl;
@@ -98,7 +98,7 @@ bool MeshExample::Setup(impeller::Context& context) {
 
   auto vertices_size = sizeof(fb::Vertex) * mesh.vertices.size();
   auto indices_size = sizeof(uint16_t) * mesh.indices.size();
-  auto device_buffer = context.GetPermanentsAllocator()->CreateBuffer(
+  auto device_buffer = context.GetResourceAllocator()->CreateBuffer(
       impeller::StorageMode::kHostVisible, vertices_size + indices_size);
 
   if (!device_buffer) {
@@ -194,7 +194,7 @@ bool MeshExample::Render(impeller::Context& context,
     return false;
   }
 
-  if (!pass->EncodeCommands(context.GetTransientsAllocator())) {
+  if (!pass->EncodeCommands()) {
     return false;
   }
 
