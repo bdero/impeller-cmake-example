@@ -16,23 +16,51 @@ target_include_directories(importer PUBLIC
 
 # import_model(
 #    TARGET dependent
-#    INPUT filename
+#    INPUTS filenames
 #    OUTPUT_DIR path
 # )
 function(import_model)
-    cmake_parse_arguments(ARG "" "TARGET;INPUT;OUTPUT_DIR" "" ${ARGN})
+    cmake_parse_arguments(ARG "" "TARGET;OUTPUT_DIR" "INPUTS" ${ARGN})
 
-    get_filename_component(INPUT_FILENAME ${ARG_INPUT} NAME_WE)
+    foreach(INPUT ${ARG_INPUTS})
+        get_filename_component(INPUT_FILENAME ${INPUT} NAME_WE)
 
-    set(OUTPUT_FILE "${ARG_OUTPUT_DIR}/${INPUT_FILENAME}.model")
-    add_custom_command(
-        TARGET "${ARG_TARGET}"
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${ARG_OUTPUT_DIR}"
-        COMMAND "$<TARGET_FILE:importer>"
-            "${ARG_INPUT}"
-            "${OUTPUT_FILE}"
-        BYPRODUCTS "${OUTPUT_FILE}"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMENT "Importing model ${ARG_INPUT}")
+        set(OUTPUT_FILE "${ARG_OUTPUT_DIR}/${INPUT_FILENAME}.model")
+        add_custom_command(
+            TARGET "${ARG_TARGET}"
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${ARG_OUTPUT_DIR}"
+            COMMAND "$<TARGET_FILE:importer>"
+                "${INPUT}"
+                "${OUTPUT_FILE}"
+            BYPRODUCTS "${OUTPUT_FILE}"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMENT "Importing model ${INPUT}")
+    endforeach()
+endfunction()
+
+# import_texture(
+#    TARGET dependent
+#    INPUTS filenames
+#    OUTPUT_DIR path
+# )
+function(import_texture)
+    cmake_parse_arguments(ARG "" "TARGET;OUTPUT_DIR" "INPUTS" ${ARGN})
+
+    foreach(INPUT ${ARG_INPUTS})
+        get_filename_component(INPUT_FILENAME ${INPUT} NAME)
+
+        set(OUTPUT_FILE "${ARG_OUTPUT_DIR}/${INPUT_FILENAME}")
+        # Currently just copies files without any conversion.
+        add_custom_command(
+            TARGET "${ARG_TARGET}"
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${ARG_OUTPUT_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy
+                "${INPUT}"
+                "${OUTPUT_FILE}"
+            BYPRODUCTS "${OUTPUT_FILE}"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMENT "Importing texture ${INPUT}")
+    endforeach()
 endfunction()

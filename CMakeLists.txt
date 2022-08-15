@@ -78,8 +78,16 @@ add_subdirectory(third_party/assimp)
 add_subdirectory(src/importer)
 target_compile_options(assimp PRIVATE "-Wno-unused-function")
 
-# Import 3D models
+# Import assets
 import_model(
     TARGET example
-    INPUT ${ASSETS_SOURCE_DIR}/flutter_logo.fbx
+    INPUTS ${ASSETS_SOURCE_DIR}/flutter_logo.fbx
+    OUTPUT_DIR ${ASSETS_OUT_DIR})
+
+import_texture(
+    TARGET example
+    INPUTS
+        ${ASSETS_SOURCE_DIR}/flutter_logo_BaseColor.png
+        ${ASSETS_SOURCE_DIR}/flutter_logo_Normal.png
+        ${ASSETS_SOURCE_DIR}/flutter_logo_OcclusionRoughnessMetallic.png
     OUTPUT_DIR ${ASSETS_OUT_DIR})
