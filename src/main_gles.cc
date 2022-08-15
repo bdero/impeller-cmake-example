@@ -6,7 +6,6 @@
 #include <memory>
 
 #include "backends/imgui_impl_glfw.h"
-#include "examples/mesh_example.h"
 #include "fml/mapping.h"
 #include "imgui.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
@@ -25,7 +24,8 @@
 #include "examples/assets.h"
 #include "examples/clock.h"
 #include "examples/example_base.h"
-#include "examples/the_impeller_example.h"
+#include "examples/mesh/mesh_example.h"
+#include "examples/the_impeller/the_impeller_example.h"
 
 #include "generated/shaders/gles/example_shaders_gles.h"
 #include "generated/shaders/impeller.frag.h"

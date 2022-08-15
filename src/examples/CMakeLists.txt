@@ -2,8 +2,8 @@ add_library(examples STATIC
     "assets.cc"
     "clock.cc"
     "example_base.cc"
-    "mesh_example.cc"
-    "the_impeller_example.cc"
+    "mesh/mesh_example.cc"
+    "the_impeller/the_impeller_example.cc"
 )
 
 target_link_libraries(examples PRIVATE impeller_renderer stb)

@@ -92,8 +92,6 @@ int main(int argc, char* argv[]) {
     if (ai_mesh->HasTextureCoords(0)) {
       texture_coords = ai_mesh->mTextureCoords[0][vertex_i];
     }
-    std::cout << "Texture coord: " << texture_coords.x << " "
-              << texture_coords.y << std::endl;
 
     example::fb::Vertex vtx({position.x, position.y, position.z},
                             {normal.x, normal.y, normal.z},

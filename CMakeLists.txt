@@ -55,8 +55,8 @@ add_gles_shader_library(
     SHADERS
         ${FLUTTER_ENGINE_DIR}/impeller/fixtures/impeller.vert
         ${FLUTTER_ENGINE_DIR}/impeller/fixtures/impeller.frag
-        ${SOURCE_DIR}/examples/mesh_example.vert
-        ${SOURCE_DIR}/examples/mesh_example.frag
+        ${SOURCE_DIR}/examples/mesh/mesh_example.vert
+        ${SOURCE_DIR}/examples/mesh/mesh_example.frag
     OUTPUT_DIR ${GENERATED_DIR}/shaders)
 add_library(example_shader_lib STATIC
     "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
