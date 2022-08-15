@@ -30,6 +30,10 @@ class MeshExample final : public ExampleBase {
 
   std::shared_ptr<impeller::Pipeline> pipeline_;
   impeller::VertexBuffer vertex_buffer_;
+
+  std::shared_ptr<impeller::Texture> base_color_texture_;
+  std::shared_ptr<impeller::Texture> normal_texture_;
+  std::shared_ptr<impeller::Texture> occlusion_roughness_metallic_texture_;
 };
 
 }  // namespace example

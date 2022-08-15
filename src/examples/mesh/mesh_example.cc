@@ -60,6 +60,33 @@ bool MeshExample::Setup(impeller::Context& context) {
   fb::GetMesh(data.data())->UnPackTo(&mesh);
 
   //----------------------------------------------------------------------------
+  /// Load textures.
+  ///
+
+  const auto asset_path = std::filesystem::current_path() / "assets/";
+
+  base_color_texture_ =
+      example::LoadTexture(asset_path / "flutter_logo_BaseColor.png",
+                           *context.GetPermanentsAllocator());
+  if (!base_color_texture_) {
+    std::cerr << "Failed to load base color texture." << std::endl;
+  }
+
+  normal_texture_ = example::LoadTexture(asset_path / "flutter_logo_Normal.png",
+                                         *context.GetPermanentsAllocator());
+  if (!normal_texture_) {
+    std::cerr << "Failed to load normal texture." << std::endl;
+  }
+
+  occlusion_roughness_metallic_texture_ = example::LoadTexture(
+      asset_path / "flutter_logo_OcclusionRoughnessMetallic.png",
+      *context.GetPermanentsAllocator());
+  if (!occlusion_roughness_metallic_texture_) {
+    std::cerr << "Failed to load occlusion/roughness/metallic texture."
+              << std::endl;
+  }
+
+  //----------------------------------------------------------------------------
   /// Upload vertices/indices to the device.
   ///
 
