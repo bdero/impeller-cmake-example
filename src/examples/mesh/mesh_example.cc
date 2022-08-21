@@ -31,8 +31,8 @@ ExampleBase::Info MeshExample::GetInfo() {
   return {
       .name = "Mesh Example",
       .description =
-          "A simple FBX with vertex colors and normals imported ahead of "
-          "time. The importer tool is located under `src/importer`.",
+          "An FBX with texture coordinates and normals/tangents imported ahead "
+          "of time. The importer tool is located under `src/importer`.",
   };
 }
 
@@ -185,6 +185,11 @@ bool MeshExample::Render(impeller::Context& context,
       impeller::Matrix::MakeRotationX(
           impeller::Radians{std::cos(time * 0.27f) / 4});
   VS::BindVertInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(vs_uniform));
+
+  FS::FragInfo fs_uniform;
+  fs_uniform.camera_position = {0, 0, -50};
+  FS::BindFragInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
+
   FS::BindBaseColorTexture(cmd, base_color_texture_, sampler_);
   FS::BindNormalTexture(cmd, normal_texture_, sampler_);
   FS::BindOcclusionRoughnessMetallicTexture(

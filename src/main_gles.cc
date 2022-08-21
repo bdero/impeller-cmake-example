@@ -81,7 +81,7 @@ int main() {
   ::glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   ::glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif  // __APPLE__
-
+  //::glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
   ::glfwWindowHint(GLFW_RED_BITS, 8);
   ::glfwWindowHint(GLFW_GREEN_BITS, 8);
   ::glfwWindowHint(GLFW_BLUE_BITS, 8);
