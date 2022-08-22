@@ -218,8 +218,6 @@ int main() {
                        example_names.size());
         ImGui::TextWrapped("%s", example_info.description);
       }
-      ImGui::End();
-      ImGui::Render();
 
       auto buffer = renderer->GetContext()->CreateCommandBuffer();
       if (!buffer) {
@@ -253,6 +251,9 @@ int main() {
       if (!example->Render(*renderer->GetContext(), render_target, *buffer)) {
         return false;
       }
+
+      ImGui::End();
+      ImGui::Render();
 
       // Render ImGui overlay.
       {

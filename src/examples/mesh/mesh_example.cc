@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iterator>
 
+#include "imgui/imgui.h"
 #include "impeller/geometry/matrix.h"
 #include "impeller/geometry/scalar.h"
 #include "impeller/renderer/allocator.h"
@@ -160,6 +161,9 @@ bool MeshExample::Render(impeller::Context& context,
                          impeller::CommandBuffer& command_buffer) {
   clock_.Tick();
 
+  static float exposure = 5;
+  ImGui::SliderFloat("Exposure", &exposure, 0, 15);
+
   auto pass = command_buffer.CreateRenderPass(render_target);
   if (!pass) {
     return false;
@@ -187,6 +191,7 @@ bool MeshExample::Render(impeller::Context& context,
   VS::BindVertInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(vs_uniform));
 
   FS::FragInfo fs_uniform;
+  fs_uniform.exposure = exposure;
   fs_uniform.camera_position = {0, 0, -50};
   FS::BindFragInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
 

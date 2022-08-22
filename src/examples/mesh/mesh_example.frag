@@ -1,4 +1,5 @@
 uniform FragInfo {
+  float exposure;
   vec3 camera_position;
 }
 frag_info;
@@ -130,9 +131,14 @@ void main() {
                    normal, metallic, roughness, reflectance);
 
   vec3 ambient = vec3(0.03) * albedo * occlusion;
-  frag_color = vec4(ambient + out_radiance, 1.0);
+  vec3 out_color = ambient + out_radiance;
+
+  // Tone mapping.
+  out_color = vec3(1.0) - exp(-out_color * frag_info.exposure);
 
 #ifndef IMPELLER_TARGET_METAL
-  frag_color.rgb = pow(frag_color.rgb, vec3(1.0 / kGamma));
+  out_color = pow(out_color, vec3(1.0 / kGamma));
 #endif
+
+  frag_color = vec4(out_color, 1.0);
 }
