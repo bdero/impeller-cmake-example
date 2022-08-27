@@ -12,6 +12,7 @@
 #include "impeller/renderer/allocator.h"
 #include "impeller/renderer/buffer_view.h"
 #include "impeller/renderer/command.h"
+#include "impeller/renderer/device_buffer_descriptor.h"
 #include "impeller/renderer/formats.h"
 #include "impeller/renderer/pipeline_library.h"
 #include "impeller/renderer/render_pass.h"
@@ -99,8 +100,11 @@ bool MeshExample::Setup(impeller::Context& context) {
 
   auto vertices_size = sizeof(fb::Vertex) * mesh.vertices.size();
   auto indices_size = sizeof(uint16_t) * mesh.indices.size();
-  auto device_buffer = context.GetResourceAllocator()->CreateBuffer(
-      impeller::StorageMode::kHostVisible, vertices_size + indices_size);
+
+  auto device_buffer = context.GetResourceAllocator()->CreateBuffer({
+      .storage_mode = impeller::StorageMode::kHostVisible,
+      .size = vertices_size + indices_size,
+  });
 
   if (!device_buffer) {
     std::cerr << "Failed to create device buffer." << std::endl;

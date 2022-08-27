@@ -5,9 +5,9 @@
 #include <iostream>
 #include <memory>
 
-#include "backends/imgui_impl_glfw.h"
 #include "fml/mapping.h"
-#include "imgui.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/imgui.h"
 #include "impeller/playground/imgui/gles/imgui_shaders_gles.h"
 #include "impeller/playground/imgui/imgui_impl_impeller.h"
 #include "impeller/renderer/allocator.h"
@@ -17,6 +17,7 @@
 #include "impeller/renderer/formats.h"
 #include "impeller/renderer/renderer.h"
 #include "impeller/renderer/texture_descriptor.h"
+
 
 #define GLFW_INCLUDE_NONE
 #include "third_party/glfw/include/GLFW/glfw3.h"
@@ -235,6 +236,7 @@ int main() {
         depth_texture_desc.usage = static_cast<impeller::TextureUsageMask>(
             impeller::TextureUsage::kRenderTarget);
         depth_texture_desc.sample_count = impeller::SampleCount::kCount1;
+        depth_texture_desc.storage_mode = impeller::StorageMode::kDevicePrivate;
 
         impeller::DepthAttachment depth;
         depth.load_action = impeller::LoadAction::kClear;
@@ -242,7 +244,7 @@ int main() {
         depth.clear_depth = 1.0;
         depth.texture =
             renderer->GetContext()->GetResourceAllocator()->CreateTexture(
-                impeller::StorageMode::kDeviceTransient, depth_texture_desc);
+                depth_texture_desc);
 
         render_target.SetDepthAttachment(depth);
       }

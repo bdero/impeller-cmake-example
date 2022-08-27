@@ -48,9 +48,9 @@ std::shared_ptr<impeller::Texture> LoadTexture(
   texture_desc.format = impeller::PixelFormat::kR8G8B8A8UNormInt;
   texture_desc.size = {raw_image.width, raw_image.height};
   texture_desc.usage = usage;
+  texture_desc.storage_mode = impeller::StorageMode::kHostVisible;
 
-  auto texture = allocator.CreateTexture(impeller::StorageMode::kHostVisible,
-                                         texture_desc);
+  auto texture = allocator.CreateTexture(texture_desc);
   if (!texture) {
     std::cerr << "Failed to allocate device texture for image: " << filename
               << std::endl;
@@ -85,9 +85,9 @@ std::shared_ptr<impeller::Texture> LoadTextureCube(
   texture_desc.format = impeller::PixelFormat::kR8G8B8A8UNormInt;
   texture_desc.size = {raw_images[0].width, raw_images[0].height};
   texture_desc.usage = usage;
+  texture_desc.storage_mode = impeller::StorageMode::kHostVisible;
 
-  auto texture = allocator.CreateTexture(impeller::StorageMode::kHostVisible,
-                                         texture_desc);
+  auto texture = allocator.CreateTexture(texture_desc);
   if (!texture) {
     std::cerr << "Failed to allocate device texture for image: " << filenames[0]
               << std::endl;
