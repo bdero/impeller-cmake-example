@@ -12,6 +12,28 @@ This repository is tested against the `x64 Native Tools Command Prompt for VS 20
 
 This repository is tested against **Homebrew Clang 13.0.0**, which ships with the homebrew `llvm` package.
 
+### SteamDeck (ArchLinux)
+
+Boot into desktop mode.
+
+```bash
+# Set a password for the user.
+passwd
+
+# Disable filesystem read-only mode.
+sudo btrfs property set -ts / ro false
+
+# Install archlinux maintainer public keys.
+sudo pacman-key --init
+sudo pacman-key --populate archlinux
+
+# Install dependencies.
+sudo pacman -Sy cmake
+# The following dependencies should already be installed on the SteamDeck,
+# but they need to be reinstalled in order to populate missing headers.
+sudo pacman -Sy mesa libglvnd libx11
+```
+
 ## Fetching dependencies
 
 1. Clone the repository and fetch submodules:
