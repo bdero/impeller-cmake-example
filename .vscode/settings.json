@@ -15,6 +15,17 @@
     "cmake.debugConfig": {
         "externalConsole": true,
         "cwd": "${workspaceFolder}",
+        "args": [
+            "--input=${workspaceFolder}/src/examples/mesh/mesh_example.vert",
+            "--sl=${workspaceFolder}/generated/shaders/mesh_example.vert.gles",
+            "--spirv=${workspaceFolder}/generated/shaders/mesh_example.vert.spirv",
+            "--opengl-es",
+            "--reflection-json=${workspaceFolder}/generated/shaders/mesh_example.vert.json",
+            "--reflection-header=${workspaceFolder}/generated/shaders/mesh_example.vert.h",
+            "--reflection-cc=${workspaceFolder}/generated/shaders/mesh_example.vert.cc",
+            "--include=${workspaceFolder}/third_party/impeller-cmake/third_party/flutter/impeller/compiler/shader_lib",
+            "--define=IMPELLER_TARGET_OPENGLES"
+        ]
     },
     "cmake.configureOnOpen": true,
 }

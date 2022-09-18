@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "impeller/renderer/pipeline.h"
+#include "impeller/renderer/pipeline_descriptor.h"
 #include "impeller/renderer/sampler.h"
 #include "impeller/renderer/vertex_buffer.h"
 
@@ -29,7 +30,7 @@ class MeshExample final : public ExampleBase {
  private:
   example::Clock clock_;
 
-  std::shared_ptr<impeller::Pipeline> pipeline_;
+  std::shared_ptr<impeller::Pipeline<impeller::PipelineDescriptor>> pipeline_;
   impeller::VertexBuffer vertex_buffer_;
 
   std::shared_ptr<const impeller::Sampler> sampler_;

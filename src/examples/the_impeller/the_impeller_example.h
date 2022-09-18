@@ -4,6 +4,7 @@
 
 #include "examples/clock.h"
 #include "impeller/renderer/pipeline.h"
+#include "impeller/renderer/pipeline_descriptor.h"
 #include "impeller/renderer/sampler.h"
 #include "impeller/renderer/texture.h"
 
@@ -34,7 +35,7 @@ class TheImpellerExample final : public ExampleBase {
   std::shared_ptr<impeller::Texture> cube_map_texture_;
   std::shared_ptr<const impeller::Sampler> cube_map_sampler_;
 
-  std::shared_ptr<impeller::Pipeline> pipeline_;
+  std::shared_ptr<impeller::Pipeline<impeller::PipelineDescriptor>> pipeline_;
 };
 
 }  // namespace example

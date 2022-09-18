@@ -151,7 +151,7 @@ bool MeshExample::Setup(impeller::Context& context) {
       .depth_write_enabled = true,
   });
   pipeline_ =
-      context.GetPipelineLibrary()->GetRenderPipeline(pipeline_desc).get();
+      context.GetPipelineLibrary()->GetPipeline(pipeline_desc).get();
   if (!pipeline_ || !pipeline_->IsValid()) {
     std::cerr << "Failed to initialize pipeline for mesh example.";
     return false;
@@ -192,6 +192,7 @@ bool MeshExample::Render(impeller::Context& context,
           impeller::Radians{std::sin(time * 0.43f) / 5}) *
       impeller::Matrix::MakeRotationX(
           impeller::Radians{std::cos(time * 0.27f) / 4});
+
   VS::BindVertInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(vs_uniform));
 
   FS::FragInfo fs_uniform;
