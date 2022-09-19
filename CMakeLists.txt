@@ -31,6 +31,8 @@ if(WIN32)
         $<$<CONFIG:>:/MT>
         $<$<CONFIG:Debug>:/MTd>
         $<$<CONFIG:Release>:/MT>)
+elseif(UNIX)
+    set(CXX_STANDARD_LIBRARY libc++)
 endif()
 
 # Dependency: impeller-cmake
@@ -52,6 +54,11 @@ add_library(stb STATIC "third_party/stb.cc")
 
 # Dependency: Dear ImGui
 include("imgui.cmake")
+
+# Asset importer binary
+add_subdirectory(third_party/assimp)
+add_subdirectory(src/importer)
+target_compile_options(assimp PRIVATE "-Wno-unused-function")
 
 # Shaders
 add_gles_shader_library(
@@ -76,11 +83,6 @@ add_executable(example
     "src/main_gles.cc"
 )
 target_link_libraries(example PRIVATE glfw imgui examples)
-
-# Asset importer binary
-add_subdirectory(third_party/assimp)
-add_subdirectory(src/importer)
-target_compile_options(assimp PRIVATE "-Wno-unused-function")
 
 # Import assets
 import_model(

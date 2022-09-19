@@ -4,6 +4,7 @@ add_library(examples STATIC
     "example_base.cc"
     "mesh/mesh_example.cc"
     "the_impeller/the_impeller_example.cc"
+    "${GENERATED_DIR}/importer/mesh_flatbuffers.h"
 )
 
 target_link_libraries(examples PRIVATE impeller_renderer stb)

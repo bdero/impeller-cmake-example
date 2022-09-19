@@ -14,7 +14,7 @@ This repository is tested against **Homebrew Clang 13.0.0**, which ships with th
 
 ### SteamDeck (ArchLinux)
 
-Boot into desktop mode.
+Note: Don't do this unless you're comfortable with restoring if things go wrong.
 
 ```bash
 # Set a password for the user.
@@ -27,11 +27,11 @@ sudo btrfs property set -ts / ro false
 sudo pacman-key --init
 sudo pacman-key --populate archlinux
 
-# Install dependencies.
+# Install build dependencies.
 sudo pacman -Sy cmake
 # The following dependencies should already be installed on the SteamDeck,
 # but they need to be reinstalled in order to populate missing headers.
-sudo pacman -Sy mesa libglvnd libx11
+sudo pacman -Sy mesa libglvnd xorgproto libxrandr libxinerama libxcursor libxi libxext gcc linux-api-headers libx11 libxrender libxfixes
 ```
 
 ## Fetching dependencies
