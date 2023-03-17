@@ -59,7 +59,7 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
   auto pipeline_desc =
       impeller::PipelineBuilder<VS, FS>::MakeDefaultPipelineDescriptor(context);
   pipeline_desc->SetSampleCount(impeller::SampleCount::kCount4);
-  pipeline_ = context.GetPipelineLibrary()->GetPipeline(pipeline_desc).get();
+  pipeline_ = context.GetPipelineLibrary()->GetPipeline(pipeline_desc).Get();
   if (!pipeline_ || !pipeline_->IsValid()) {
     std::cerr << "Failed to initialize pipeline for showcase.";
     return false;

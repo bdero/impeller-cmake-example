@@ -146,12 +146,13 @@ bool MeshExample::Setup(impeller::Context& context) {
   pipeline_desc->SetSampleCount(impeller::SampleCount::kCount4);
   pipeline_desc->SetWindingOrder(impeller::WindingOrder::kCounterClockwise);
   pipeline_desc->SetCullMode(impeller::CullMode::kBackFace);
-  pipeline_desc->SetDepthStencilAttachmentDescriptor({
+  pipeline_desc->SetDepthStencilAttachmentDescriptor(
+    std::make_optional<impeller::DepthAttachmentDescriptor>({
       .depth_compare = impeller::CompareFunction::kLess,
       .depth_write_enabled = true,
-  });
+    }));
   pipeline_ =
-      context.GetPipelineLibrary()->GetPipeline(pipeline_desc).get();
+      context.GetPipelineLibrary()->GetPipeline(pipeline_desc).Get();
   if (!pipeline_ || !pipeline_->IsValid()) {
     std::cerr << "Failed to initialize pipeline for mesh example.";
     return false;
