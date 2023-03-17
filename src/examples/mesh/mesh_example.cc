@@ -144,7 +144,7 @@ bool MeshExample::Setup(impeller::Context& context) {
   auto pipeline_desc =
       impeller::PipelineBuilder<VS, FS>::MakeDefaultPipelineDescriptor(context);
   pipeline_desc->SetSampleCount(impeller::SampleCount::kCount4);
-  pipeline_desc->SetWindingOrder(impeller::WindingOrder::kCounterClockwise);
+  pipeline_desc->SetWindingOrder(impeller::WindingOrder::kClockwise);
   pipeline_desc->SetCullMode(impeller::CullMode::kBackFace);
   pipeline_desc->SetDepthStencilAttachmentDescriptor(
     std::make_optional<impeller::DepthAttachmentDescriptor>({
@@ -185,8 +185,8 @@ bool MeshExample::Render(impeller::Context& context,
   VS::VertInfo vs_uniform;
   vs_uniform.mvp =
       impeller::Matrix::MakePerspective(impeller::Degrees{60},
-                                        pass->GetRenderTargetSize(), 10, 100) *
-      impeller::Matrix::MakeTranslation({0, 0, -50}) *
+                                        pass->GetRenderTargetSize(), 0.1, 1000) *
+      impeller::Matrix::MakeLookAt({0, 0, -50}, {0, 0, 0}, {0, 1, 0}) *
       impeller::Matrix::MakeScale({0.3, 0.3, 0.3}) *
       impeller::Matrix::MakeRotationY(impeller::Radians{-0.4f * time}) *
       impeller::Matrix::MakeRotationZ(
