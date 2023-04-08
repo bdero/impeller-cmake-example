@@ -3,10 +3,10 @@
 #include <memory>
 
 #include "examples/clock.h"
+#include "impeller/core/sampler.h"
+#include "impeller/core/texture.h"
 #include "impeller/renderer/pipeline.h"
 #include "impeller/renderer/pipeline_descriptor.h"
-#include "impeller/renderer/sampler.h"
-#include "impeller/renderer/texture.h"
 
 #include "examples/example_base.h"
 

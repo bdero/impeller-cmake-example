@@ -7,7 +7,7 @@ add_library(examples STATIC
     "${GENERATED_DIR}/importer/mesh_flatbuffers.h"
 )
 
-target_link_libraries(examples PRIVATE impeller_renderer stb)
+target_link_libraries(examples PRIVATE impeller_core impeller_renderer stb)
 target_link_libraries(examples PUBLIC example_shader_lib)
 target_include_directories(examples PUBLIC
     ${PROJECT_DIR}

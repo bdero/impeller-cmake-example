@@ -7,18 +7,18 @@
 #include <iterator>
 
 #include "imgui/imgui.h"
+#include "impeller/core/allocator.h"
+#include "impeller/core/buffer_view.h"
+#include "impeller/core/device_buffer_descriptor.h"
+#include "impeller/core/formats.h"
+#include "impeller/core/vertex_buffer.h"
 #include "impeller/geometry/matrix.h"
 #include "impeller/geometry/scalar.h"
-#include "impeller/renderer/allocator.h"
-#include "impeller/renderer/buffer_view.h"
 #include "impeller/renderer/command.h"
-#include "impeller/renderer/device_buffer_descriptor.h"
-#include "impeller/renderer/formats.h"
 #include "impeller/renderer/pipeline_library.h"
 #include "impeller/renderer/render_pass.h"
 #include "impeller/renderer/render_target.h"
 #include "impeller/renderer/sampler_library.h"
-#include "impeller/renderer/vertex_buffer.h"
 #include "impeller/tessellator/tessellator.h"
 
 #include "examples/assets.h"

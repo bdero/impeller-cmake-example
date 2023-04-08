@@ -4,9 +4,9 @@
 #include <iostream>
 #include <memory>
 
-#include "impeller/renderer/allocator.h"
-#include "impeller/renderer/formats.h"
-#include "impeller/renderer/texture_descriptor.h"
+#include "impeller/core/allocator.h"
+#include "impeller/core/formats.h"
+#include "impeller/core/texture_descriptor.h"
 #include "stb/stb_image.h"
 
 namespace example {

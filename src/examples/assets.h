@@ -3,9 +3,9 @@
 #include <filesystem>
 #include <memory>
 
-#include "impeller/renderer/allocator.h"
-#include "impeller/renderer/formats.h"
-#include "impeller/renderer/texture.h"
+#include "impeller/core/allocator.h"
+#include "impeller/core/formats.h"
+#include "impeller/core/texture.h"
 
 namespace example {
 
