@@ -1,4 +1,10 @@
-set(IMGUI_IMPELLER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/impeller-cmake/third_party/flutter/impeller/playground/imgui)
+if(DEFINED FLUTTER_ENGINE_DIR)
+    set(IMGUI_FLUTTER_DIR ${FLUTTER_ENGINE_DIR})
+else()
+    set(IMGUI_FLUTTER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/impeller-cmake/third_party/flutter)
+endif()
+set(IMGUI_IMPELLER_DIR ${IMGUI_FLUTTER_DIR}/impeller/playground/imgui)
+
 add_gles_shader_library(
     NAME imgui
     SHADERS
@@ -25,6 +31,6 @@ target_include_directories(imgui
         ${CMAKE_CURRENT_SOURCE_DIR} # For "third_party/*"
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party # For "imgui/*"
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui # For "imgui.h"
-        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/impeller-cmake/third_party/flutter # For "impeller/*"
+        ${IMGUI_FLUTTER_DIR} # For "impeller/*"
         ${GENERATED_DIR})
 target_link_libraries(imgui PUBLIC glfw impeller_renderer)

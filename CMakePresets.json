@@ -1,5 +1,5 @@
 {
-    "version": 2,
+    "version": 3,
     "configurePresets": [
         {
             "name": "ninja-debug-vs2022",
@@ -29,6 +29,19 @@
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_CXX_LINKER": "ld"
+            }
+        },
+        {
+            "name": "flutter-ci-mac-debug-x64",
+            "displayName": "Flutter CI mac-debug-x64",
+            "description": "Goma-enabled Ninja build for Flutter CI",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/mac-debug-x64",
+            "toolchainFile": "${sourceDir}/toolchains/mac-x64-toolchain.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
             }
         }
     ],
