@@ -1,15 +1,15 @@
 [submodule "third_party/impeller-cmake"]
 	path = third_party/impeller-cmake
-	url = git@github.com:bdero/impeller-cmake.git
+	url = https://github.com/bdero/impeller-cmake.git
 [submodule "third_party/glfw"]
 	path = third_party/glfw
-	url = git@github.com:glfw/glfw.git
+	url = https://github.com/glfw/glfw.git
 [submodule "third_party/imgui"]
 	path = third_party/imgui
-	url = git@github.com:ocornut/imgui.git
+	url = https://github.com/ocornut/imgui.git
 [submodule "third_party/stb"]
 	path = third_party/stb
-	url = git@github.com:nothings/stb.git
+	url = https://github.com/nothings/stb.git
 [submodule "third_party/assimp"]
 	path = third_party/assimp
-	url = git@github.com:assimp/assimp.git
+	url = https://github.com/assimp/assimp.git
