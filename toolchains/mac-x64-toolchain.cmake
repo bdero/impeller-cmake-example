@@ -1,3 +1,7 @@
+# Copyright 2013 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 # This toolchain definition expects the environment variable
 # FLUTTER_ENGINE_SRC_DIR to be the absolute path to a full Flutter engine
 # checkout.
