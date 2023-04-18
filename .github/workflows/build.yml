@@ -1,9 +1,11 @@
 name: Build
+
 on:
   push:
     branches: [ $default-branch ]
   pull_request:
     branches: [ $default-branch ]
+  workflow_dispatch:
 
 # Declare default permissions as read only.
 permissions: read-all
