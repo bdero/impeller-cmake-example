@@ -28,7 +28,8 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "1",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_CXX_LINKER": "ld"
+                "CMAKE_CXX_LINKER": "ld",
+                "CMAKE_AR": "llvm-ar"
             }
         },
         {
