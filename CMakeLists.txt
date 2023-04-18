@@ -79,7 +79,7 @@ add_library(example_shader_lib STATIC
     "${GENERATED_DIR}/shaders/impeller.frag.cc"
     "${GENERATED_DIR}/shaders/mesh_example.vert.cc"
     "${GENERATED_DIR}/shaders/mesh_example.frag.cc")
-target_link_libraries(example_shader_lib PUBLIC impeller_aiks)
+target_link_libraries(example_shader_lib PUBLIC impeller_renderer impeller_entity impeller_aiks)
 
 # Examples binary
 add_subdirectory(src/examples)
