@@ -41,7 +41,17 @@ jobs:
     # The clang build installed above links libtinfo5, but it's missing from the current
     # ubuntu-latest image.
     - name: Install Ubuntu package dependencies
-      run: sudo apt install -y libtinfo5 mesa-common-dev libgl1-mesa-dev libgles2-mesa-dev libxrandr2 libxrandr-dev libxinerama1 libxcursor1 libxi6 libxext6 libx11-6 libxrender1 libxfixes3
+      run: |
+        sudo apt install -y libtinfo5 \
+                            mesa-common-dev libgl1-mesa-dev libgles2-mesa-dev \
+                            libxrandr2 libxrandr-dev \
+                            libxinerama1 libxinerama-dev \
+                            libxcursor1 libxcursor-dev \
+                            libxi6 libxi-dev \
+                            libxext6 libxext-dev \
+                            libx11-6 libx11-dev \
+                            libxrender1 libxrender-dev \
+                            libxfixes3 libxfixes-dev
       if: matrix.os == 'ubuntu-latest'
 
     - name: Configure CMake
