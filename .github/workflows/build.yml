@@ -19,10 +19,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        submodules: 'recursive'
+    - name: Fetch dependencies
+      run: ./deps.sh
 
     - name: Install LLVM and Clang
       uses: KyleMayes/install-llvm-action@v1
@@ -39,6 +37,7 @@ jobs:
     # ubuntu-latest image.
     - name: Install libtinfo5
       run: sudo apt install -y libtinfo5
+      if: matrix.os == 'ubuntu-latest'
 
     - name: Configure CMake
       run: cmake --preset ninja-debug-clang
