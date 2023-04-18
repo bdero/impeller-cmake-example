@@ -1,0 +1,40 @@
+name: Build
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+# Declare default permissions as read only.
+permissions: read-all
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "16.0.0"
+
+    - name: Get cmake and ninja
+      uses: lukka/get-cmake@v3.26.0
+      with:
+        cmakeVersion: 3.26.0
+        ninjaVersion: 1.11.1
+
+    - name: Configure CMake
+      run: cmake --preset ninja-debug-clang
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/out/build/ninja-debug
