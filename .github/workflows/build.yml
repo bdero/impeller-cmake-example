@@ -19,6 +19,11 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+
     - name: Fetch dependencies
       run: ./deps.sh
 
