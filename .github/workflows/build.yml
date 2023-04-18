@@ -38,10 +38,10 @@ jobs:
         cmakeVersion: 3.26.0
         ninjaVersion: 1.11.1
 
-    # The clang build installed above links this, but it's missing from the current
+    # The clang build installed above links libtinfo5, but it's missing from the current
     # ubuntu-latest image.
-    - name: Install libtinfo5
-      run: sudo apt install -y libtinfo5
+    - name: Install Ubuntu package dependencies
+      run: sudo apt install -y libtinfo5 mesa-common-dev libgl1-mesa-dev libgles2-mesa-dev
       if: matrix.os == 'ubuntu-latest'
 
     - name: Configure CMake
