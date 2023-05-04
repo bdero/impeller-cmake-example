@@ -74,7 +74,7 @@ add_gles_shader_library(
         ${SOURCE_DIR}/examples/mesh/mesh_example.frag
     OUTPUT_DIR ${GENERATED_DIR}/shaders)
 add_library(example_shader_lib STATIC
-    "${GENERATED_DIR}/shaders/gles/example_shaders_gles.c"
+    "${GENERATED_DIR}/shaders/gles/example_shaders_gles.cc"
     "${GENERATED_DIR}/shaders/impeller.vert.cc"
     "${GENERATED_DIR}/shaders/impeller.frag.cc"
     "${GENERATED_DIR}/shaders/mesh_example.vert.cc"
