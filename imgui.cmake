@@ -24,7 +24,7 @@ set(IMGUI_SOURCE_FILES
     "third_party/imgui/imgui_demo.cpp"
     "third_party/imgui/backends/imgui_impl_glfw.cpp"
     "${IMGUI_IMPELLER_DIR}/imgui_impl_impeller.cc"
-    "${GENERATED_DIR}/impeller/playground/imgui/gles/imgui_shaders_gles.c"
+    "${GENERATED_DIR}/impeller/playground/imgui/gles/imgui_shaders_gles.cc"
     "${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.vert.cc"
     "${GENERATED_DIR}/impeller/playground/imgui/imgui_raster.frag.cc")
 
