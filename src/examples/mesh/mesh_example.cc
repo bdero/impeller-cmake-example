@@ -137,7 +137,7 @@ bool MeshExample::Setup(impeller::Context& context) {
           impeller::BufferView{
               .buffer = device_buffer,
               .range = impeller::Range{vertices_size, indices_size}},
-      .index_count = mesh.indices.size(),
+      .vertex_count = mesh.indices.size(),
       .index_type = impeller::IndexType::k16bit,
   };
 
@@ -151,12 +151,11 @@ bool MeshExample::Setup(impeller::Context& context) {
   pipeline_desc->SetWindingOrder(impeller::WindingOrder::kClockwise);
   pipeline_desc->SetCullMode(impeller::CullMode::kBackFace);
   pipeline_desc->SetDepthStencilAttachmentDescriptor(
-    std::make_optional<impeller::DepthAttachmentDescriptor>({
-      .depth_compare = impeller::CompareFunction::kLess,
-      .depth_write_enabled = true,
-    }));
-  pipeline_ =
-      context.GetPipelineLibrary()->GetPipeline(pipeline_desc).Get();
+      std::make_optional<impeller::DepthAttachmentDescriptor>({
+          .depth_compare = impeller::CompareFunction::kLess,
+          .depth_write_enabled = true,
+      }));
+  pipeline_ = context.GetPipelineLibrary()->GetPipeline(pipeline_desc).Get();
   if (!pipeline_ || !pipeline_->IsValid()) {
     std::cerr << "Failed to initialize pipeline for mesh example.";
     return false;
@@ -179,7 +178,7 @@ bool MeshExample::Render(impeller::Context& context,
   }
 
   impeller::Command cmd;
-  cmd.label = "Mesh Example";
+  DEBUG_COMMAND_INFO(cmd, "Mesh Example");
   cmd.pipeline = pipeline_;
 
   cmd.BindVertices(vertex_buffer_);
@@ -188,8 +187,8 @@ bool MeshExample::Render(impeller::Context& context,
 
   VS::VertInfo vs_uniform;
   vs_uniform.mvp =
-      impeller::Matrix::MakePerspective(impeller::Degrees{60},
-                                        pass->GetRenderTargetSize(), 0.1, 1000) *
+      impeller::Matrix::MakePerspective(
+          impeller::Degrees{60}, pass->GetRenderTargetSize(), 0.1, 1000) *
       impeller::Matrix::MakeLookAt({0, 0, -50}, {0, 0, 0}, {0, 1, 0}) *
       impeller::Matrix::MakeScale({0.3, 0.3, 0.3}) *
       impeller::Matrix::MakeRotationY(impeller::Radians{-0.4f * time}) *

@@ -20,6 +20,13 @@ set(ASSETS_SOURCE_DIR ${PROJECT_DIR}/assets_src)
 set(ASSETS_OUT_DIR ${PROJECT_DIR}/assets)
 set(FLATBUFFERS_INCLUDE_DIR ${THIRD_PARTY_DIR}/impeller-cmake/third_party/flatbuffers/include)
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    # It's very important that IMPELLER_DEBUG is enabled whenever Impeller's
+    # libraries are built with it, as some data structures in headers change
+    # with the presence of this flag.
+    add_compile_definitions(IMPELLER_DEBUG=1)
+endif()
+
 if(WIN32)
     add_compile_definitions(
         WIN32_LEAN_AND_MEAN
@@ -54,7 +61,7 @@ endif()
 add_subdirectory(third_party/glfw)
 
 # Dependency: STB
-add_library(stb STATIC "third_party/stb.cc")
+add_library(stb STATIC "third_party/stb_image_impl.cc")
 
 # Dependency: Dear ImGui
 include("imgui.cmake")

@@ -83,7 +83,7 @@ bool TheImpellerExample::Render(impeller::Context& context,
   }
 
   impeller::Command cmd;
-  cmd.label = "Impeller SDF showcase";
+  DEBUG_COMMAND_INFO(cmd, "Impeller SDF showcase");
   cmd.pipeline = pipeline_;
 
   auto size = render_target.GetRenderTargetSize();
