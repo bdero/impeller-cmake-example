@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 
+#include "fml/closure.h"
 #include "fml/mapping.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/imgui.h"
@@ -77,14 +78,14 @@ int main() {
 
   ::glfwDefaultWindowHints();
 
-#ifdef __APPLE__
+#ifdef FML_OS_MACOSX
   // ES Profiles are not supported on Mac.
   ::glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-#else   // __APPLE__
+#else   // FML_OS_MACOSX
   ::glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
   ::glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   ::glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif  // __APPLE__
+#endif  // FML_OS_MACOSX
   //::glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
   ::glfwWindowHint(GLFW_RED_BITS, 8);
   ::glfwWindowHint(GLFW_GREEN_BITS, 8);
