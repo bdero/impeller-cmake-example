@@ -117,13 +117,15 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  auto context = impeller::ContextGLES::Create(
-      std::move(gl), {std::make_shared<fml::NonOwnedMapping>(
-                          impeller_imgui_shaders_gles_data,
-                          impeller_imgui_shaders_gles_length),
-                      std::make_shared<fml::NonOwnedMapping>(
-                          impeller_example_shaders_gles_data,
-                          impeller_example_shaders_gles_length)});
+  auto context =
+      impeller::ContextGLES::Create(std::move(gl),
+                                    {std::make_shared<fml::NonOwnedMapping>(
+                                         impeller_imgui_shaders_gles_data,
+                                         impeller_imgui_shaders_gles_length),
+                                     std::make_shared<fml::NonOwnedMapping>(
+                                         impeller_example_shaders_gles_data,
+                                         impeller_example_shaders_gles_length)},
+                                    false);
   if (!context) {
     std::cerr << "Failed to create Impeller context.";
     return EXIT_FAILURE;
@@ -236,7 +238,8 @@ int main() {
         impeller::TextureDescriptor depth_texture_desc;
         depth_texture_desc.type = impeller::TextureType::kTexture2D;
 
-        depth_texture_desc.format = impeller::PixelFormat::kD32FloatS8UInt; //DefaultColor;
+        depth_texture_desc.format =
+            impeller::PixelFormat::kD32FloatS8UInt;  // DefaultColor;
         depth_texture_desc.size = render_target.GetRenderTargetSize();
         depth_texture_desc.usage = static_cast<impeller::TextureUsageMask>(
             impeller::TextureUsage::kRenderTarget);
