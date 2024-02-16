@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "examples/clock.h"
+#include "impeller/core/host_buffer.h"
 #include "impeller/core/sampler.h"
 #include "impeller/core/texture.h"
 #include "impeller/renderer/pipeline.h"
@@ -33,11 +34,11 @@ class TheImpellerExample final : public ExampleBase {
  private:
   example::Clock clock_;
 
+  std::shared_ptr<impeller::HostBuffer> transients_buffer_;
+
   std::shared_ptr<impeller::Texture> blue_noise_texture_;
-  std::shared_ptr<const impeller::Sampler> blue_noise_sampler_;
 
   std::shared_ptr<impeller::Texture> cube_map_texture_;
-  std::shared_ptr<const impeller::Sampler> cube_map_sampler_;
 
   std::shared_ptr<impeller::Pipeline<impeller::PipelineDescriptor>> pipeline_;
 };

@@ -7,11 +7,13 @@
 #include <filesystem>
 #include <iostream>
 
+#include "impeller/core/host_buffer.h"
 #include "impeller/renderer/command.h"
 #include "impeller/renderer/pipeline_library.h"
 #include "impeller/renderer/render_pass.h"
 #include "impeller/renderer/render_target.h"
 #include "impeller/renderer/sampler_library.h"
+#include "impeller/renderer/vertex_buffer_builder.h"
 
 #include "examples/assets.h"
 
@@ -30,6 +32,9 @@ ExampleBase::Info TheImpellerExample::GetInfo() {
 }
 
 bool TheImpellerExample::Setup(impeller::Context& context) {
+  transients_buffer_ =
+      impeller::HostBuffer::Create(context.GetResourceAllocator());
+
   const auto fixture_path =
       std::filesystem::current_path() /
       "third_party/impeller-cmake/third_party/flutter/impeller/fixtures/";
@@ -43,12 +48,6 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
     std::cerr << "Failed to load blue noise texture." << std::endl;
     return false;
   }
-  impeller::SamplerDescriptor noise_sampler_desc;
-  noise_sampler_desc.width_address_mode = impeller::SamplerAddressMode::kRepeat;
-  noise_sampler_desc.height_address_mode =
-      impeller::SamplerAddressMode::kRepeat;
-  blue_noise_sampler_ =
-      context.GetSamplerLibrary()->GetSampler(noise_sampler_desc);
 
   cube_map_texture_ =
       example::LoadTextureCube({fixture_path / "table_mountain_px.png",
@@ -58,7 +57,6 @@ bool TheImpellerExample::Setup(impeller::Context& context) {
                                 fixture_path / "table_mountain_pz.png",
                                 fixture_path / "table_mountain_nz.png"},
                                *context.GetResourceAllocator());
-  cube_map_sampler_ = context.GetSamplerLibrary()->GetSampler({});
 
   auto pipeline_desc =
       impeller::PipelineBuilder<VS, FS>::MakeDefaultPipelineDescriptor(context);
@@ -76,15 +74,15 @@ bool TheImpellerExample::Render(impeller::Context& context,
                                 const impeller::RenderTarget& render_target,
                                 impeller::CommandBuffer& command_buffer) {
   clock_.Tick();
+  transients_buffer_->Reset();
 
   auto pass = command_buffer.CreateRenderPass(render_target);
   if (!pass) {
     return false;
   }
 
-  impeller::Command cmd;
-  DEBUG_COMMAND_INFO(cmd, "Impeller SDF showcase");
-  cmd.pipeline = pipeline_;
+  pass->SetCommandLabel("Impeller SDF showcase");
+  pass->SetPipeline(pipeline_);
 
   auto size = render_target.GetRenderTargetSize();
 
@@ -95,21 +93,28 @@ bool TheImpellerExample::Render(impeller::Context& context,
                        {impeller::Point(size.width, 0)},
                        {impeller::Point(0, size.height)},
                        {impeller::Point(size.width, size.height)}});
-  cmd.BindVertices(builder.CreateVertexBuffer(pass->GetTransientsBuffer()));
+  pass->SetVertexBuffer(builder.CreateVertexBuffer(*transients_buffer_));
 
   VS::FrameInfo vs_uniform;
   vs_uniform.mvp = impeller::Matrix::MakeOrthographic(size);
-  VS::BindFrameInfo(cmd,
-                    pass->GetTransientsBuffer().EmplaceUniform((vs_uniform)));
+  VS::BindFrameInfo(*pass, transients_buffer_->EmplaceUniform((vs_uniform)));
 
   FS::FragInfo fs_uniform;
   fs_uniform.texture_size = impeller::Point(size);
   fs_uniform.time = clock_.GetTime();
-  FS::BindFragInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
-  FS::BindBlueNoise(cmd, blue_noise_texture_, blue_noise_sampler_);
-  FS::BindCubeMap(cmd, cube_map_texture_, cube_map_sampler_);
+  FS::BindFragInfo(*pass, transients_buffer_->EmplaceUniform(fs_uniform));
 
-  if (!pass->AddCommand(std::move(cmd))) {
+  impeller::SamplerDescriptor noise_sampler_desc;
+  noise_sampler_desc.width_address_mode = impeller::SamplerAddressMode::kRepeat;
+  noise_sampler_desc.height_address_mode =
+      impeller::SamplerAddressMode::kRepeat;
+  FS::BindBlueNoise(
+      *pass, blue_noise_texture_,
+      context.GetSamplerLibrary()->GetSampler(noise_sampler_desc));
+  FS::BindCubeMap(*pass, cube_map_texture_,
+                  context.GetSamplerLibrary()->GetSampler({}));
+
+  if (!pass->Draw().ok()) {
     return false;
   }
 
