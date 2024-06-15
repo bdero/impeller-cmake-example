@@ -198,7 +198,7 @@ int main() {
     ImGui::SetNextWindowPos({10, 10});
 
     impeller::Renderer::RenderCallback render_callback =
-        [&renderer, &examples,
+        [&context, &renderer, &examples,
          &example_names](impeller::RenderTarget& render_target) -> bool {
       static int selected_example_index = 1;
       auto example = examples[selected_example_index].get();
@@ -286,7 +286,10 @@ int main() {
         }
       }
 
-      return buffer->SubmitCommands();
+      // TODO(bdero): GetComandQueue shouldn't be private...
+      std::shared_ptr<impeller::Context>(context)->GetCommandQueue()->Submit(
+          {buffer});
+      return true;
     };
     renderer->Render(std::move(surface), render_callback);
 

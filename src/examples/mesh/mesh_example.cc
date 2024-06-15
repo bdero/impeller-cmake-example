@@ -15,6 +15,7 @@
 #include "impeller/core/buffer_view.h"
 #include "impeller/core/device_buffer_descriptor.h"
 #include "impeller/core/formats.h"
+#include "impeller/core/host_buffer.h"
 #include "impeller/core/vertex_buffer.h"
 #include "impeller/geometry/matrix.h"
 #include "impeller/geometry/scalar.h"
@@ -43,6 +44,9 @@ ExampleBase::Info MeshExample::GetInfo() {
 }
 
 bool MeshExample::Setup(impeller::Context& context) {
+  transients_buffer_ =
+      impeller::HostBuffer::Create(context.GetResourceAllocator());
+
   //----------------------------------------------------------------------------
   /// Load/unpack the model.
   ///
@@ -67,13 +71,8 @@ bool MeshExample::Setup(impeller::Context& context) {
   fb::GetMesh(data.data())->UnPackTo(&mesh);
 
   //----------------------------------------------------------------------------
-  /// Create sampler and load textures.
+  /// Load textures.
   ///
-
-  impeller::SamplerDescriptor sampler_desc;
-  sampler_desc.min_filter = impeller::MinMagFilter::kLinear;
-  sampler_desc.mag_filter = impeller::MinMagFilter::kLinear;
-  sampler_ = context.GetSamplerLibrary()->GetSampler(sampler_desc);
 
   const auto asset_path = std::filesystem::current_path() / "assets/";
 
@@ -168,6 +167,7 @@ bool MeshExample::Render(impeller::Context& context,
                          const impeller::RenderTarget& render_target,
                          impeller::CommandBuffer& command_buffer) {
   clock_.Tick();
+  transients_buffer_->Reset();
 
   static float exposure = 5;
   ImGui::SliderFloat("Exposure", &exposure, 0, 15);
@@ -177,11 +177,10 @@ bool MeshExample::Render(impeller::Context& context,
     return false;
   }
 
-  impeller::Command cmd;
-  DEBUG_COMMAND_INFO(cmd, "Mesh Example");
-  cmd.pipeline = pipeline_;
+  pass->SetCommandLabel("Mesh Example");
+  pass->SetPipeline(pipeline_);
 
-  cmd.BindVertices(vertex_buffer_);
+  pass->SetVertexBuffer(vertex_buffer_);
 
   auto time = clock_.GetTime();
 
@@ -197,19 +196,23 @@ bool MeshExample::Render(impeller::Context& context,
       impeller::Matrix::MakeRotationX(
           impeller::Radians{std::cos(time * 0.27f) / 4});
 
-  VS::BindVertInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(vs_uniform));
+  VS::BindVertInfo(*pass, transients_buffer_->EmplaceUniform(vs_uniform));
 
   FS::FragInfo fs_uniform;
   fs_uniform.exposure = exposure;
   fs_uniform.camera_position = {0, 0, -50};
-  FS::BindFragInfo(cmd, pass->GetTransientsBuffer().EmplaceUniform(fs_uniform));
+  FS::BindFragInfo(*pass, transients_buffer_->EmplaceUniform(fs_uniform));
 
-  FS::BindBaseColorTexture(cmd, base_color_texture_, sampler_);
-  FS::BindNormalTexture(cmd, normal_texture_, sampler_);
+  impeller::SamplerDescriptor sampler_desc;
+  sampler_desc.min_filter = impeller::MinMagFilter::kLinear;
+  sampler_desc.mag_filter = impeller::MinMagFilter::kLinear;
+  const auto& sampler = context.GetSamplerLibrary()->GetSampler(sampler_desc);
+  FS::BindBaseColorTexture(*pass, base_color_texture_, sampler);
+  FS::BindNormalTexture(*pass, normal_texture_, sampler);
   FS::BindOcclusionRoughnessMetallicTexture(
-      cmd, occlusion_roughness_metallic_texture_, sampler_);
+      *pass, occlusion_roughness_metallic_texture_, sampler);
 
-  if (!pass->AddCommand(std::move(cmd))) {
+  if (!pass->Draw().ok()) {
     return false;
   }
 
