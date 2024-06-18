@@ -21,6 +21,7 @@
 #include "impeller/renderer/backend/gles/context_gles.h"
 #include "impeller/renderer/backend/gles/reactor_gles.h"
 #include "impeller/renderer/backend/gles/surface_gles.h"
+#include "impeller/renderer/render_pass.h"
 #include "impeller/renderer/renderer.h"
 
 #define GLFW_INCLUDE_NONE
@@ -280,10 +281,6 @@ int main() {
         pass->SetLabel("ImGui Render Pass");
 
         ::ImGui_ImplImpeller_RenderDrawData(ImGui::GetDrawData(), *pass);
-
-        if (!pass->EncodeCommands()) {
-          return false;
-        }
       }
 
       // TODO(bdero): GetComandQueue shouldn't be private...
